@@ -28,7 +28,7 @@ export default function TreeList({ list = [] }) {
         };
       });
     return loop(list);
-  }, []);
+  }, [list]);
   return (
     <div>
       <Tree

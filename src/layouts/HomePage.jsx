@@ -3,7 +3,7 @@ import { useOutlet } from 'react-router-dom';
 
 import Header from './Header/Header';
 import Footer from './Footer';
-import { Layout, theme } from 'antd';
+import { Layout } from 'antd';
 const { Content } = Layout;
 import { BackTop } from 'antd';
 const HomePage = () => {
@@ -14,7 +14,6 @@ const HomePage = () => {
     <>
       <BackTop />
       <Layout hasSider>
-        {/* <Sidebar collapsed={collapsed} /> */}
         <Layout style={{ margin: '0 200px' }}>
           <Header style={{ background: '#737373' }} collapsed={collapsed} setCollapsed={setCollapsed} />
           <Content style={{ margin: '10px 0', overflow: 'initial' }}>
@@ -22,7 +21,8 @@ const HomePage = () => {
               style={{
                 padding: 24,
                 minHeight: '100vh',
-              }}>
+              }}
+            >
               {outlet}
             </div>
           </Content>

@@ -7,7 +7,8 @@ export default function CTDropdown({ items = [], children, ...props }) {
         items,
       }}
       trigger={['click']}
-      {...props}>
+      {...props}
+    >
       {children}
     </Dropdown>
   );

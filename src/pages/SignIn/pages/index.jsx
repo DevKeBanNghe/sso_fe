@@ -1,62 +1,32 @@
-import { Input, Button, Checkbox, Divider, Row, Col, Flex, Image, Form } from 'antd';
-import { UserOutlined, LockOutlined, GoogleCircleFilled, FacebookFilled, GithubFilled } from '@ant-design/icons';
+import { Input, Button, Divider, Row, Col, Flex, Image, Form } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 
 const { Link } = Typography;
 import Logo from 'images/logo.png';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import CTForm from 'components/shared/CTForm';
-import CTIcon from 'components/shared/CTIcon';
-// import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getAllUser, signIn } from '../service';
-import { useEffect } from 'react';
+import { forgotPassword, signIn } from '../service';
+import { useState } from 'react';
 import { toast } from 'common/utils';
+import SocialsSignIn from '../components/SocialsSignIn';
+import useLocalStorage from 'hooks/useLocalStorage';
+import { CODE_RESET_KEY } from 'common/consts';
+import { redirectTo } from 'common/utils/common.util';
+import NotificationReset from './NotificationReset';
 
 export default function SignIn() {
-  const social_icons = [
-    { icon: GoogleCircleFilled, color: '#de342c' },
-    { icon: FacebookFilled, color: '#0866ff' },
-    { icon: GithubFilled, color: '#1f2328' },
-  ];
   const navigate = useNavigate();
-  const { control, handleSubmit } = useForm();
+  const methods = useForm();
+  const { control, handleSubmit } = methods;
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isShowNotificationReset, setIsShowNotificationReset] = useState(false);
+  const [, setCodeResetPwd] = useLocalStorage(CODE_RESET_KEY);
 
-  // const query = useQuery({ queryKey: ['sign-in'], queryFn: getTodos })
-
-  useEffect(() => {
-    getAllUser().then((data) => {
-      console.log('🚀 ~ getAllUser ~ data:', data);
-    });
-  }, []);
-
-  const onSubmit = async (data) => {
-    try {
-      const res = await signIn(data);
-      console.log('🚀 ~ onSubmit ~ res:', res);
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-
-  const handleGoogleLogin = () => {
-    // Handle Google login logic
-  };
-
-  const handleFacebookLogin = () => {
-    // Handle Facebook login logic
-  };
-
-  const handleForgotPassword = () => {
-    // Handle Facebook login logic
-  };
-
-  const handleRegister = () => {
-    // Handle Facebook login logic
-  };
-
-  const items = [
+  const formItemsSignIn = [
     {
+      key: 'logo',
       render: () => (
         <Flex gap='middle' justify='center'>
           <Image style={{ cursor: 'pointer' }} onClick={() => navigate('/')} preview={false} width={200} src={Logo} />
@@ -68,7 +38,7 @@ export default function SignIn() {
       render: ({ field }) => {
         return (
           <Form.Item name='user_name' rules={[{ required: true, message: 'Please input your email!' }]}>
-            <Input {...field} size='large' prefix={<UserOutlined />} placeholder='Username, Email or Password' />
+            <Input {...field} size='large' prefix={<UserOutlined />} placeholder={'Username, Email or Phone Number'} />
           </Form.Item>
         );
       },
@@ -86,9 +56,6 @@ export default function SignIn() {
     {
       render: () => (
         <Form.Item>
-          <Form.Item name='remember' valuePropName='checked' noStyle>
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
           <Link style={{ float: 'right' }} onClick={handleForgotPassword}>
             Forgot password
           </Link>
@@ -117,21 +84,100 @@ export default function SignIn() {
       render: () => (
         <>
           <Divider plain>Or</Divider>
-          <Flex gap='middle' justify='center'>
-            {social_icons.map((item, index) => (
-              <CTIcon key={`social_icon_${index}`} icon={item.icon} color={item.color} />
-            ))}
-          </Flex>
+          <SocialsSignIn />
         </>
       ),
     },
   ];
+  const [formItems, setFormItems] = useState(formItemsSignIn);
+
+  const handleForgotPassword = () => {
+    setIsForgotPassword(true);
+    setFormItems((prev) => [
+      prev.find((item) => item.key === 'logo'),
+      {
+        field: 'email',
+        render: ({ field }) => {
+          return (
+            <Form.Item
+              name='email'
+              rules={[
+                { required: true, message: 'Please input your email!' },
+                {
+                  required: true,
+                  type: 'email',
+                  message: 'The input is not valid E-mail!',
+                },
+              ]}
+            >
+              <Input {...field} size='large' prefix={<UserOutlined />} placeholder={'Email'} />
+            </Form.Item>
+          );
+        },
+      },
+      {
+        render: () => (
+          <Form.Item>
+            <Button
+              size='large'
+              type='primary'
+              htmlType='submit'
+              className='login-form-button'
+              style={{ width: '100%' }}
+            >
+              Send
+            </Button>
+          </Form.Item>
+        ),
+      },
+      {
+        render: () => (
+          <Form.Item>
+            <Flex gap='middle' justify='center'>
+              <Link onClick={resetToSingIn}>Sign in</Link>
+            </Flex>
+          </Form.Item>
+        ),
+      },
+    ]);
+  };
+
+  const resetToSingIn = () => {
+    setIsForgotPassword(false);
+    setFormItems(formItemsSignIn);
+  };
+
+  const onSubmit = async (values) => {
+    try {
+      if (isForgotPassword) {
+        const { data, errors } = await forgotPassword(values);
+        if (errors) return toast.error(errors);
+        setCodeResetPwd(data.code_reset);
+        setIsShowNotificationReset(true);
+        return;
+      }
+
+      const { errors } = await signIn(values);
+      if (errors) return toast.error(errors);
+
+      // redirect to page user access after login success
+      redirectTo('https://google.com');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
-    <Row justify='center'>
-      <Col span={8}>
-        <CTForm name='login-form' items={items} global_control={control} onSubmit={handleSubmit(onSubmit)} />
-      </Col>
-    </Row>
+    <FormProvider {...methods}>
+      <Row justify='center'>
+        <Col span={8}>
+          {isShowNotificationReset ? (
+            <NotificationReset />
+          ) : (
+            <CTForm name='sign-in-form' items={formItems} global_control={control} onSubmit={handleSubmit(onSubmit)} />
+          )}
+        </Col>
+      </Row>
+    </FormProvider>
   );
 }

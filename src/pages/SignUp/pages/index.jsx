@@ -1,12 +1,5 @@
 import { Input, Button, Divider, Row, Col, Flex, Image, Form, DatePicker } from 'antd';
-import {
-  UserOutlined,
-  LockOutlined,
-  GoogleCircleFilled,
-  FacebookFilled,
-  GithubFilled,
-  MailOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 
 const { Link } = Typography;
@@ -14,29 +7,13 @@ import Logo from 'images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import CTForm from 'components/shared/CTForm';
-import CTIcon from 'components/shared/CTIcon';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getAllUser, signUp } from '../service';
-import { useEffect } from 'react';
+import { signUp } from '../service';
 import { antdDateToStringDate, toast } from 'common/utils';
 import PhoneNumberInput from 'components/shared/PhoneNumberInput';
-import { redirectTo } from 'common/utils/common.util';
-const API_URL = import.meta.env.VITE_API_URL;
-const APP_URL = import.meta.env.VITE_APP_URL;
+import SocialsSignUp from '../components/SocialsSignUp';
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const social_icons = [
-    {
-      icon: GoogleCircleFilled,
-      color: '#de342c',
-      onClick: () => {
-        redirectTo(`${API_URL}/auth/google?from_url=${APP_URL}`);
-      },
-    },
-    { icon: FacebookFilled, color: '#0866ff' },
-    { icon: GithubFilled, color: '#1f2328' },
-  ];
   const {
     formState: { errors },
     control,
@@ -44,38 +21,14 @@ export default function SignUp() {
     watch,
   } = useForm();
 
-  // const query = useQuery({ queryKey: ['sign-in'], queryFn: getTodos })
-
-  useEffect(() => {
-    getAllUser().then((data) => {
-      console.log('🚀 ~ getAllUser ~ data:', data);
-    });
-  }, []);
-
   const onSubmit = async (data) => {
     data.date_of_birth = antdDateToStringDate({ value: data.date_of_birth });
     try {
-      const res = await signUp(data);
-      console.log('🚀 ~ onSubmit ~ res:', res);
+      const { data, errors } = await signUp(data);
+      if (errors) toast.error(errors);
     } catch (error) {
       toast.error(error.message);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    // Handle Google login logic
-  };
-
-  const handleFacebookLogin = () => {
-    // Handle Facebook login logic
-  };
-
-  const handleForgotPassword = () => {
-    // Handle Facebook login logic
-  };
-
-  const handleRegister = () => {
-    // Handle Facebook login logic
   };
 
   const items = [
@@ -98,7 +51,8 @@ export default function SignUp() {
                 type: 'email',
                 message: 'The input is not valid email!',
               },
-            ]}>
+            ]}
+          >
             <Input {...field} size='large' prefix={<MailOutlined />} placeholder='Email' />
           </Form.Item>
         );
@@ -150,7 +104,8 @@ export default function SignUp() {
               //   message:
               //     'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
               // },
-            ]}>
+            ]}
+          >
             <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='Password' />
           </Form.Item>
         );
@@ -173,7 +128,8 @@ export default function SignUp() {
                   return Promise.reject(new Error('Confirm password not match!'));
                 },
               }),
-            ]}>
+            ]}
+          >
             <Input.Password
               disabled={!watch('password')}
               {...field}
@@ -208,11 +164,7 @@ export default function SignUp() {
       render: () => (
         <>
           <Divider plain>Or</Divider>
-          <Flex gap='middle' justify='center'>
-            {social_icons.map((item, index) => (
-              <CTIcon key={`social_icon_${index}`} {...item} />
-            ))}
-          </Flex>
+          <SocialsSignUp />
         </>
       ),
     },
@@ -221,7 +173,7 @@ export default function SignUp() {
   return (
     <Row justify='center'>
       <Col span={8}>
-        <CTForm name='login-form' items={items} global_control={control} onSubmit={handleSubmit(onSubmit)} />
+        <CTForm name='sign-up-form' items={items} global_control={control} onSubmit={handleSubmit(onSubmit)} />
       </Col>
     </Row>
   );

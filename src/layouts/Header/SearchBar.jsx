@@ -1,6 +1,4 @@
-import React from 'react';
-import { AudioOutlined } from '@ant-design/icons';
-import { Input, Space } from 'antd';
+import { Input } from 'antd';
 const { Search } = Input;
 
 export default function SearchBar() {

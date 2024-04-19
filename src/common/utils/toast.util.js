@@ -8,7 +8,7 @@ const TYPE_TOAST = {
 };
 
 const execToast = (type = TYPE_TOAST.INFO, message = 'Đây là thông báo', options) =>
-  funcToast[type](isFunction(message) ? message() : message, options);
+  funcToast[type](isFunction(message) ? message() : message.toString(), options);
 
 export const toast = {
   success: (message, options) => execToast(TYPE_TOAST.SUCCESS, message, options),

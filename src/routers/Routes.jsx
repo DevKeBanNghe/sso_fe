@@ -5,6 +5,7 @@ import useVerifyAccess from 'hooks/useVerifyAccess';
 import { routers } from 'routers';
 import SignIn from 'pages/SignIn/pages';
 import SignUp from 'pages/SignUp/pages';
+import ResetPassword from 'pages/ResetPassword/pages';
 
 const homePageRouter = { path: '/', component: HomePage, exact: true };
 const outsideRouter = [
@@ -16,6 +17,11 @@ const outsideRouter = [
   {
     path: '/sign-up',
     component: SignUp,
+    exact: true,
+  },
+  {
+    path: '/reset-password',
+    component: ResetPassword,
     exact: true,
   },
 ];
@@ -48,7 +54,8 @@ const Routes = (_routers = routers, routeParent) => {
         path={homePageRouter.path}
         exact={homePageRouter.exact}
         errorElement={Errors}
-        Component={homePageRouter.component}>
+        Component={homePageRouter.component}
+      >
         {routesAccess.map((route) => (
           <Route
             key={route.path}
@@ -57,7 +64,8 @@ const Routes = (_routers = routers, routeParent) => {
             exact={route.exact}
             loader={route.loader}
             errorElement={Errors}
-            Component={route.component}>
+            Component={route.component}
+          >
             {route.children && route.children.length && Routes(route.children, route)}
           </Route>
         ))}
