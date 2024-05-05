@@ -1,5 +1,7 @@
 import { postApi } from 'common/utils/index';
 
 const prefix = `/auth`;
-export const signIn = (body = {}) => postApi(`${prefix}/sign-in`, body);
-export const forgotPassword = (body = {}) => postApi(`${prefix}/forgot-password`, body);
+const signIn = (data = {}) => postApi(`${prefix}/sign-in`, data);
+const forgotPassword = (data = {}) => postApi(`${prefix}/forgot-password`, data);
+
+export { signIn, forgotPassword };

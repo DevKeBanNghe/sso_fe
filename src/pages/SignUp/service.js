@@ -1,4 +1,5 @@
 import { postApi } from 'common/utils/index';
 
 const prefix = `/auth`;
-export const signUp = (body = {}) => postApi(`${prefix}/sign-up`, body);
+const signUp = (data = {}) => postApi(`${prefix}/sign-up`, data);
+export { signUp };

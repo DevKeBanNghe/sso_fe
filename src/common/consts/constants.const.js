@@ -11,10 +11,9 @@ export const REVIEW_STATUS_OPTIONS = convertToListOptions([
 
 export const GENDER_OPTIONS = convertToListOptions([{ all: 2 }, { male: 1 }, { female: 0 }]);
 
-export const DEFAULT_PAGING = {
-  items: [],
-  itemsPerPage: 0,
-  page: 0,
-  totalItems: 0,
-  totalPages: 0,
+export const DEFAULT_PAGINATION = {
+  page: 1,
+  itemPerPage: 4,
 };
+
+export const SELECT_LIMIT_OPTIONS = 6;

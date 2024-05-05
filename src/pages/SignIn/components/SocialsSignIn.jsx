@@ -26,7 +26,7 @@ export default function SocialsSignIn() {
   return (
     <Flex gap='middle' justify='center'>
       {social_icons.map((item, index) => (
-        <CTIcon key={`social_icon_${index}`} {...item} />
+        <CTIcon style={{ fontSize: '40px' }} key={`social_icon_${index}`} {...item} />
       ))}
     </Flex>
   );

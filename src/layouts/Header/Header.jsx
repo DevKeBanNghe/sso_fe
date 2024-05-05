@@ -1,6 +1,5 @@
 import { Flex, Typography, Col, Row, Image } from 'antd';
 import TabHeader from './TabHeader';
-import SearchBar from './SearchBar';
 import Logo from 'images/logo.png';
 import { useNavigate } from 'react-router-dom';
 const { Link } = Typography;
@@ -10,7 +9,7 @@ const Header = () => {
 
   return (
     <>
-      <div style={{ background: '#f5f5f5', position: 'sticky', top: 0, zIndex: 1 }}>
+      <div style={{ background: '#f5f5f5', position: 'sticky', top: 0, zIndex: 9 }}>
         <Image preview={false} style={{ cursor: 'pointer' }} width={100} src={Logo} onClick={() => navigate('/')} />
         <div style={{ float: 'right', paddingTop: '40px' }}>
           <Flex gap={'15px'}>
@@ -27,9 +26,9 @@ const Header = () => {
           <Col span={16}>
             <TabHeader />
           </Col>
-          <Col span={8}>
+          {/* <Col span={8}>
             <SearchBar />
-          </Col>
+          </Col> */}
         </Row>
       </div>
     </>

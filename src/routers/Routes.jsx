@@ -8,7 +8,7 @@ import SignUp from 'pages/SignUp/pages';
 import ResetPassword from 'pages/ResetPassword/pages';
 
 const homePageRouter = { path: '/', component: HomePage, exact: true };
-const outsideRouter = [
+const outsideRouters = [
   {
     path: '/sign-in',
     component: SignIn,
@@ -39,11 +39,11 @@ const Routes = (_routers = routers, routeParent) => {
   const routesAccess = otherRouters.concat(_routers.filter((route) => verifyRoutePermission(route.permission)));
   return (
     <>
-      {outsideRouter.map((route) => (
+      {outsideRouters.map((route) => (
         <Route
           key={route.path}
           path={route.path}
-          exact={route.exact}
+          exact={route.exact ?? true}
           errorElement={Errors}
           Component={route.component}
         />
