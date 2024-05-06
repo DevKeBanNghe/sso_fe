@@ -1,30 +1,13 @@
 import { Route } from 'react-router-dom';
 import HomePage from 'layouts/HomePage';
 import Errors from 'layouts/ErrorsPage';
-import useVerifyAccess from 'hooks/useVerifyAccess';
 import { routers } from 'routers';
-import SignIn from 'pages/SignIn/pages';
-import SignUp from 'pages/SignUp/pages';
-import ResetPassword from 'pages/ResetPassword/pages';
+import signInRouters from 'pages/SignIn/route';
+import signUpRouters from 'pages/SignUp/route';
+import resetPasswordRouters from 'pages/ResetPassword/route';
+import forgotPasswordRouters from 'pages/ForgotPassword/route';
 
-const homePageRouter = { path: '/', component: HomePage, exact: true };
-const outsideRouters = [
-  {
-    path: '/sign-in',
-    component: SignIn,
-    exact: true,
-  },
-  {
-    path: '/sign-up',
-    component: SignUp,
-    exact: true,
-  },
-  {
-    path: '/reset-password',
-    component: ResetPassword,
-    exact: true,
-  },
-];
+const outsideRouters = [...signInRouters, ...signUpRouters, ...resetPasswordRouters, ...forgotPasswordRouters];
 
 const otherRouters = [
   {
@@ -34,9 +17,8 @@ const otherRouters = [
 ];
 
 const Routes = (_routers = routers, routeParent) => {
-  const { verifyRoutePermission } = useVerifyAccess();
-  // Check xem user được phép truy cập những route nào
-  const routesAccess = otherRouters.concat(_routers.filter((route) => verifyRoutePermission(route.permission)));
+  const routesAccess = otherRouters.concat(_routers);
+
   return (
     <>
       {outsideRouters.map((route) => (
@@ -49,23 +31,16 @@ const Routes = (_routers = routers, routeParent) => {
         />
       ))}
 
-      <Route
-        key={homePageRouter.path}
-        path={homePageRouter.path}
-        exact={homePageRouter.exact}
-        errorElement={Errors}
-        Component={homePageRouter.component}
-      >
+      <Route key={'HomePage'} path={'/'} exact={true} errorElement={Errors} Component={HomePage}>
         {routesAccess.map((route) => (
           <Route
             key={route.path}
             index={route.index}
             path={`${routeParent?.path ?? ''}${route.path}`}
-            exact={route.exact}
+            exact={route.exact ?? true}
             loader={route.loader}
             errorElement={Errors}
-            Component={route.component}
-          >
+            Component={route.component}>
             {route.children && route.children.length && Routes(route.children, route)}
           </Route>
         ))}

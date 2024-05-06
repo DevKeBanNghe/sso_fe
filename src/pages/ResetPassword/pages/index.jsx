@@ -9,10 +9,14 @@ import { resetPassword } from '../service';
 import { toast } from 'common/utils';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { CODE_RESET_KEY } from 'common/consts';
+import { delay } from 'lodash';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const [codeReset] = useLocalStorage(CODE_RESET_KEY);
+  const [codeReset, setCodeReset] = useLocalStorage(CODE_RESET_KEY);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     formState: { errors },
     control,
@@ -20,12 +24,20 @@ export default function ResetPassword() {
     watch,
   } = useForm();
 
+  const mutationResetPassword = useMutation({
+    mutationFn: resetPassword,
+    onSuccess: ({ errors }) => {
+      if (errors) return toast.error(errors);
+      setCodeReset('');
+      setIsLoading(true);
+      toast.success('Change Password successfully! Wait for redirect');
+      delay(() => navigate('/sign-in'), 2000);
+    },
+  });
+
   const onSubmit = async (values) => {
     try {
-      const { errors, message } = await resetPassword({ ...values, code_reset: codeReset });
-      if (errors) return toast.error(errors);
-      toast.success(message);
-      return navigate('/sign-in');
+      mutationResetPassword.mutate({ ...values, code_reset: codeReset });
     } catch (error) {
       toast.error(error.message);
     }
@@ -52,8 +64,7 @@ export default function ResetPassword() {
               //   message:
               //     'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
               // },
-            ]}
-          >
+            ]}>
             <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='New Password' />
           </Form.Item>
         );
@@ -76,8 +87,7 @@ export default function ResetPassword() {
                   return Promise.reject(new Error('Confirm password not match!'));
                 },
               }),
-            ]}
-          >
+            ]}>
             <Input.Password
               disabled={!watch('password')}
               {...field}
@@ -93,7 +103,13 @@ export default function ResetPassword() {
     {
       render: () => (
         <Form.Item>
-          <Button size='large' type='primary' htmlType='submit' className='login-form-button' style={{ width: '100%' }}>
+          <Button
+            loading={isLoading}
+            size='large'
+            type='primary'
+            htmlType='submit'
+            className='login-form-button'
+            style={{ width: '100%' }}>
             Confirm
           </Button>
         </Form.Item>
@@ -104,7 +120,13 @@ export default function ResetPassword() {
   return (
     <Row justify='center'>
       <Col span={8}>
-        <CTForm name='reset-password-form' items={items} global_control={control} onSubmit={handleSubmit(onSubmit)} />
+        <CTForm
+          name='reset-password-form'
+          items={items}
+          global_control={control}
+          onSubmit={handleSubmit(onSubmit)}
+          isShowDefaultActions={false}
+        />
       </Col>
     </Row>
   );

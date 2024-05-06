@@ -17,9 +17,10 @@ const InputRef = (props, ref) => {
 
 const InputCustom = forwardRef(InputRef);
 
-export default function PhoneNumberInput({ ...props }) {
+function PhoneNumberInputRef({ ...props }, ref) {
   return (
     <PhoneInput
+      ref={ref}
       international
       defaultCountry='VN'
       placeholder='Enter phone number'
@@ -29,3 +30,6 @@ export default function PhoneNumberInput({ ...props }) {
     />
   );
 }
+
+const PhoneNumberInput = forwardRef(PhoneNumberInputRef);
+export default PhoneNumberInput;

@@ -17,3 +17,10 @@ export const DEFAULT_PAGINATION = {
 };
 
 export const SELECT_LIMIT_OPTIONS = 6;
+
+export const LOADING_STATUS = {
+  IDLE: 'idle',
+  PENDING: 'pending',
+  SUCCEEDED: 'succeeded',
+  FAILED: 'failed',
+};

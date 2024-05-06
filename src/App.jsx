@@ -8,14 +8,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient();
 const App = () => (
-  <>
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <AppRouter />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-      <ReactToastify />
-    </Provider>
-  </>
+  <Provider store={store}>
+    <QueryClientProvider client={queryClient}>
+      <AppRouter />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+    <ReactToastify />
+  </Provider>
 );
 export default App;

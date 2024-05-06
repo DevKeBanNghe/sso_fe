@@ -1,34 +1,37 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { getUserInfo } from './user.action';
+import { LOADING_STATUS } from 'common/consts/constants.const';
 
 const initialState = {
-  user: {},
+  user_name: '',
+  permissions: [],
+  loading: '',
 };
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    getUser: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      state.user = {
-        user_name: 'trung',
-        user_email: 'trung@gmail.com',
-      };
-    },
-    setUser: (state, { payload }) => {
-      console.log('🚀 ~ action:', payload);
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-    },
+    // setUser: (state, { payload }) => {},
+  },
+  extraReducers: (builder) => {
+    // Add reducers for additional action types here, and handle loading state as needed
+    builder
+      .addCase(getUserInfo.pending, (state) => {
+        state.loading = LOADING_STATUS.PENDING;
+      })
+      .addCase(getUserInfo.fulfilled, (state, { payload }) => {
+        state.user_name = payload.user_name;
+        state.permissions = payload.permissions;
+        state.loading = LOADING_STATUS.IDLE;
+      })
+      .addCase(getUserInfo.rejected, (state) => {
+        state.loading = LOADING_STATUS.IDLE;
+      });
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { getUser, setUser } = userSlice.actions;
+// export const { setUser } = userSlice.actions;
 
 export default userSlice.reducer;

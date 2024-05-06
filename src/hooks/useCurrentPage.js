@@ -39,6 +39,8 @@ export default function useCurrentPage({ keyIdParams = 'id', isPaging = true } =
     isCopy,
     id,
     currentRootRoute,
+    currentRoute: pathname,
+    params,
     queryParams,
     setQueryParams,
   };

@@ -15,7 +15,7 @@ export default function CTForm({
 }) {
   const navigate = useNavigate();
   const { pathname } = useResolvedPath();
-  const { id, isEdit, isView } = useCurrentPage();
+  const { id, isEdit, isView } = useCurrentPage({ isPaging: false });
 
   const buttonSubmitProps = useMemo(() => {
     if (!isShowDefaultActions) return {};
@@ -70,8 +70,7 @@ export default function CTForm({
             htmlType={htmlType ?? 'submit'}
             className='login-form-button'
             style={{ width: '100%', ...style }}
-            {...action}
-          >
+            {...action}>
             {action.content ?? 'Submit'}
           </Button>
         </Form.Item>

@@ -11,7 +11,7 @@ const items = routers
     label: route.name ?? genRouteNameDefault(route.path),
   }));
 const TabHeader = () => {
-  const { currentRootRoute } = useCurrentPage();
+  const { currentRootRoute } = useCurrentPage({ isPaging: false });
   const navigate = useNavigate();
   const onChange = (key) => {
     navigate(key);

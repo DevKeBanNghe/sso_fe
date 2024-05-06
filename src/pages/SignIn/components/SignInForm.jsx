@@ -1,76 +1,20 @@
-import { Button, Divider, Flex, Form, Image, Input } from 'antd';
+import { Button, Divider, Flex, Image, Input } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { useFormContext } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from 'images/logo.png';
-import useLocalStorage from 'hooks/useLocalStorage';
-import { CODE_RESET_KEY } from 'common/consts';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import SocialsSignIn from './SocialsSignIn';
-import { useState } from 'react';
-import { forgotPassword, signIn } from '../service';
+import { signIn } from '../service';
 import { toast } from 'common/utils';
+import { useMutation } from '@tanstack/react-query';
+import CTInput from 'components/shared/CTInput';
+import { redirectTo } from 'common/utils/common.util';
 
-export default function SignInForm({ setIsShowNotificationReset }) {
-  const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const { control, handleSubmit } = useFormContext();
-  const [, setCodeResetPwd] = useLocalStorage(CODE_RESET_KEY);
+export default function SignInForm() {
+  const { control, handleSubmit } = useForm();
   const navigate = useNavigate();
-  const resetToSingIn = () => {
-    setIsForgotPassword(false);
-    setFormItems(formItemsSignIn);
-  };
-  const handleForgotPassword = () => {
-    setIsForgotPassword(true);
-    setFormItems((prev) => [
-      prev.find((item) => item.key === 'logo'),
-      {
-        field: 'email',
-        render: ({ field }) => {
-          return (
-            <Form.Item
-              name='email'
-              rules={[
-                { required: true, message: 'Please input your email!' },
-                {
-                  required: true,
-                  type: 'email',
-                  message: 'The input is not valid E-mail!',
-                },
-              ]}
-            >
-              <Input {...field} size='large' prefix={<UserOutlined />} placeholder={'Email'} />
-            </Form.Item>
-          );
-        },
-      },
-      {
-        render: () => (
-          <Form.Item>
-            <Button
-              size='large'
-              type='primary'
-              htmlType='submit'
-              className='login-form-button'
-              style={{ width: '100%' }}
-            >
-              Send
-            </Button>
-          </Form.Item>
-        ),
-      },
-      {
-        render: () => (
-          <Form.Item>
-            <Flex gap='middle' justify='center'>
-              <Link onClick={resetToSingIn}>Sign in</Link>
-            </Flex>
-          </Form.Item>
-        ),
-      },
-    ]);
-  };
-  const formItemsSignIn = [
+  const formItems = [
     {
       key: 'logo',
       render: () => (
@@ -82,9 +26,7 @@ export default function SignInForm({ setIsShowNotificationReset }) {
     {
       field: 'user_name',
       render: ({ field }) => {
-        return (
-          <Input {...field} size='large' prefix={<UserOutlined />} placeholder={'Username, Email or Phone Number'} />
-        );
+        return <CTInput {...field} prefix={<UserOutlined />} placeholder={'Username, Email or Phone Number'} />;
       },
     },
     {
@@ -95,7 +37,7 @@ export default function SignInForm({ setIsShowNotificationReset }) {
     },
     {
       render: () => (
-        <Link style={{ float: 'right' }} onClick={handleForgotPassword}>
+        <Link style={{ float: 'right' }} onClick={() => navigate('/forgot-password')}>
           Forgot password
         </Link>
       ),
@@ -123,23 +65,19 @@ export default function SignInForm({ setIsShowNotificationReset }) {
       ),
     },
   ];
-  const [formItems, setFormItems] = useState(formItemsSignIn);
-  const onSubmit = async (values) => {
-    try {
-      if (isForgotPassword) {
-        const { data, errors } = await forgotPassword(values);
-        if (errors) return toast.error(errors);
-        setCodeResetPwd(data.code_reset);
-        setIsShowNotificationReset(true);
-        return;
-      }
-
-      const { errors } = await signIn(values);
+  const mutationSignIn = useMutation({
+    mutationFn: signIn,
+    onSuccess: ({ errors }) => {
       if (errors) return toast.error(errors);
-
       // redirect to page user access after login success
       // redirectTo('https://google.com');
-      navigate('/');
+      redirectTo('/');
+    },
+  });
+
+  const onSubmit = async (values) => {
+    try {
+      mutationSignIn.mutate(values);
     } catch (error) {
       toast.error(error.message);
     }

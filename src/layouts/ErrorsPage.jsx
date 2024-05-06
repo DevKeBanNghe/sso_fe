@@ -1,7 +1,6 @@
 import { Button, Result } from 'antd';
 import { useRef } from 'react';
-import { useLocation, useRouteError } from 'react-router-dom';
-import { routers } from 'routers';
+import { useLocation, useNavigate, useRouteError } from 'react-router-dom';
 
 const statusInstance = [
   { status: 404, title: 'Not Found' },
@@ -11,15 +10,25 @@ const statusInstance = [
 
 const Errors = () => {
   const error = useRouteError();
-  const statusRef = useRef(404);
-  const { pathname } = useLocation();
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const statusRef = useRef(state?.status_code ?? 404);
 
   if (error) statusRef.current = 500;
 
-  if (routers.find((item) => pathname.includes(item.path))) statusRef.current = 403;
-
   const { status, title } = statusInstance.find((item) => item.status === statusRef.current);
-  return <Result status={status} title={status} subTitle={title} extra={<Button type='primary'>Back Home</Button>} />;
+  return (
+    <Result
+      status={status}
+      title={status}
+      subTitle={title}
+      extra={
+        <Button onClick={() => navigate('/')} type='primary'>
+          Back Home
+        </Button>
+      }
+    />
+  );
 };
 
 export default Errors;

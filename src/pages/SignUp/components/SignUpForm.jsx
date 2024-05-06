@@ -10,15 +10,23 @@ import { signUp } from '../service';
 import { antdDateToStringDate, toast } from 'common/utils';
 import PhoneNumberInput from 'components/shared/PhoneNumberInput';
 import SocialsSignUp from './SocialsSignUp';
+import { useMutation } from '@tanstack/react-query';
+import CTInput from 'components/shared/CTInput';
 export default function SignUpForm() {
   const navigate = useNavigate();
   const { control, handleSubmit, watch } = useForm();
 
-  const onSubmit = async (data) => {
-    data.date_of_birth = antdDateToStringDate({ value: data.date_of_birth });
+  const mutationSignUp = useMutation({
+    mutationFn: signUp,
+    onSuccess: ({ errors }) => {
+      if (errors) return toast.error(errors);
+    },
+  });
+
+  const onSubmit = async (values) => {
+    values.date_of_birth = antdDateToStringDate({ value: values.date_of_birth });
     try {
-      const { data, errors } = await signUp(data);
-      if (errors) toast.error(errors);
+      mutationSignUp.mutate(values);
     } catch (error) {
       toast.error(error.message);
     }
@@ -35,7 +43,7 @@ export default function SignUpForm() {
     {
       field: 'email',
       render: ({ field }) => {
-        return <Input {...field} size='large' prefix={<MailOutlined />} placeholder='Email' />;
+        return <CTInput {...field} prefix={<MailOutlined />} placeholder='Email' />;
       },
     },
     {
@@ -58,7 +66,7 @@ export default function SignUpForm() {
     {
       field: 'user_name',
       render: ({ field }) => {
-        return <Input {...field} size='large' prefix={<UserOutlined />} placeholder='Username' />;
+        return <CTInput {...field} prefix={<UserOutlined />} placeholder='Username' />;
       },
     },
     {
