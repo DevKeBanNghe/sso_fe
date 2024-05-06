@@ -40,7 +40,8 @@ const Routes = (_routers = routers, routeParent) => {
             exact={route.exact ?? true}
             loader={route.loader}
             errorElement={Errors}
-            Component={route.component}>
+            Component={route.component}
+          >
             {route.children && route.children.length && Routes(route.children, route)}
           </Route>
         ))}
