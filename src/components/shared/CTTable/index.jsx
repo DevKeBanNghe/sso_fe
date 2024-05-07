@@ -60,7 +60,8 @@ const CTTable = ({
             onClick={() => {
               onGlobalDelete(selectedRowKeys);
               handleClearAllChecked();
-            }}>
+            }}
+          >
             Delete all
           </Button>
           <span style={{ marginLeft: 8 }}>Selected {selectedRowKeys.length} items</span>
