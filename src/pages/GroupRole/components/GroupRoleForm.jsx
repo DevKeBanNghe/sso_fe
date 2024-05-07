@@ -1,8 +1,8 @@
 import { Card, Col, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
-import { createGroupRole, getGroupRoleOptions, updateGroupRole } from 'pages/GroupRole/service';
+import { createGroupRole, getGroupRoleDetail, getGroupRoleOptions, updateGroupRole } from 'pages/GroupRole/service';
 import { toast } from 'common/utils';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
@@ -15,7 +15,7 @@ import { getWebPageOptions } from 'pages/Webpage/service';
 import CTModal from 'components/shared/CTModal';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useQueryKeys from 'hooks/useQueryKeys';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getGroupPermissionOptions } from 'pages/GroupPermission/service';
 import GroupPermissionForm from 'pages/GroupPermission/components/GroupPermissionForm';
 import WebpageForm from 'pages/Webpage/components/WebpageForm';
@@ -28,10 +28,11 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
     control,
     handleSubmit,
     reset,
+    setFocus,
   } = (isFormModal ? useForm : useFormContext)();
 
-  const { id: currentGroupRoleId, isEdit, setQueryParams } = useCurrentPage();
-  const { keyList } = useQueryKeys();
+  const { id: currentGroupRoleId, isEdit, setQueryParams, isCopy } = useCurrentPage();
+  const { keyList, keyDetail } = useQueryKeys();
   const [isOpenGroupPermissionModal, setIsOpenGroupPermissionModal] = useState(false);
   const groupPermissionFormRef = useRef();
   const [isOpenWebpageModal, setIsOpenWebpageModal] = useState(false);
@@ -46,13 +47,14 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
 
   const onSubmit = async (values) => {
     try {
+      if (isCopy) delete values.group_role_id;
       const payload = {
         ...values,
         group_role_parent_id: getDataSelect(values, 'group_role_parent_id'),
         group_role_webpage_id: getDataSelect(values, 'group_role_webpage_id'),
         group_role_group_permission_id: getDataSelect(values, 'group_role_group_permission_id'),
       };
-      currentGroupRoleId
+      currentGroupRoleId && isEdit
         ? mutationUpdateRoles.mutate({ ...payload, group_role_id: parseInt(currentGroupRoleId) })
         : mutationCreateRoles.mutate(payload);
     } catch (error) {
@@ -230,6 +232,19 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
     },
   ];
 
+  const { data: queryGetGroupRoleDetail = {} } = useQuery({
+    queryKey: [keyDetail, currentGroupRoleId],
+    queryFn: () => getGroupRoleDetail(currentGroupRoleId),
+    enabled: currentGroupRoleId ? true : false,
+  });
+  const { data: dataGetGroupRoleDetail } = queryGetGroupRoleDetail;
+
+  useEffect(() => {
+    if (!dataGetGroupRoleDetail) return () => {};
+    setFocus('group_role_name');
+    reset(dataGetGroupRoleDetail);
+  }, [dataGetGroupRoleDetail]);
+
   return (
     <>
       <Card style={{ width: '100%' }}>
@@ -245,24 +260,21 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
         open={isOpenGroupPermissionModal}
         title='Group Permission add'
         onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}
-      >
+        onOk={() => groupPermissionFormRef.current.onSubmit()}>
         <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
       </CTModal>
       <CTModal
         open={isOpenWebpageModal}
         title='Webpage add'
         onCancel={() => setIsOpenWebpageModal(false)}
-        onOk={() => webpageFormRef.current.onSubmit()}
-      >
+        onOk={() => webpageFormRef.current.onSubmit()}>
         <WebpageForm ref={webpageFormRef} isShowDefaultActions={false} />
       </CTModal>
       <CTModal
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}
-      >
+        onOk={() => roleFormRef.current.onSubmit()}>
         <RoleForm ref={roleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

@@ -54,7 +54,13 @@ const CTTable = ({
           <Button style={{ margin: '0 5px 5px 0', background: '#fbdf00' }} onClick={handleClearAllChecked}>
             Clear all checked
           </Button>
-          <Button danger style={{ marginBottom: '5px' }} onClick={() => onGlobalDelete(selectedRowKeys)}>
+          <Button
+            danger
+            style={{ marginBottom: '5px' }}
+            onClick={() => {
+              onGlobalDelete(selectedRowKeys);
+              handleClearAllChecked();
+            }}>
             Delete all
           </Button>
           <span style={{ marginLeft: 8 }}>Selected {selectedRowKeys.length} items</span>
@@ -95,7 +101,7 @@ const CTTable = ({
               ? selectedRowsRef.current.set(record[rowKey], record[rowKey])
               : selectedRowsRef.current.delete(record[rowKey]);
           },
-          columnWidth: '8px',
+          columnWidth: '3%',
         }}
         {...props}
       />

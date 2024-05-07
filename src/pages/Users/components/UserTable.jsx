@@ -1,6 +1,6 @@
 import CTTable from 'components/shared/CTTable';
 import useQueryKeys from 'hooks/useQueryKeys';
-import { deleteRoles, getRoleList } from '../service';
+import { deleteUsers, getUserList } from '../service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils';
 import { useNavigate } from 'react-router-dom';
@@ -8,44 +8,44 @@ import useCurrentPage from 'hooks/useCurrentPage';
 import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
 import CTTextTruncate from 'components/shared/CTTextTruncate';
 
-function RoleTable() {
+function UserTable() {
   const navigate = useNavigate();
   const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
-  const { id: currentRoleId, currentRootRoute, queryParams, setQueryParams, queryParamsString } = useCurrentPage();
+  const { id: currentUserId, currentRootRoute, queryParams, setQueryParams, queryParamsString } = useCurrentPage();
 
   const columns = [
     {
-      title: 'Role Name',
+      title: 'User Name',
       width: 50,
-      dataIndex: 'role_name',
-      key: 'role_name',
+      dataIndex: 'user_name',
+      key: 'user_name',
       fixed: 'left',
     },
     {
-      title: 'Group Role',
+      title: 'Role',
       width: 50,
-      dataIndex: 'GroupRole',
-      key: 'GroupRole',
-      render: (value) => value.group_role_name,
+      dataIndex: 'Role',
+      key: 'Role',
+      render: (value) => value.role_name,
     },
     {
-      title: 'Role Description',
+      title: 'User Description',
       width: 50,
-      dataIndex: 'role_description',
-      key: 'role_description',
+      dataIndex: 'user_description',
+      key: 'user_description',
       render: (value) => {
         return <CTTextTruncate>{value}</CTTextTruncate>;
       },
     },
   ];
 
-  const mutationDeleteRoles = useMutation({
-    mutationFn: deleteRoles,
+  const mutationDeleteUsers = useMutation({
+    mutationFn: deleteUsers,
     onSuccess: async ({ errors }, { ids }) => {
       if (errors) return toast.error(errors);
       toast.success('Delete success');
-      if (ids.includes(parseInt(currentRoleId))) {
+      if (ids.includes(parseInt(currentUserId))) {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
       await queryClient.fetchQuery({
@@ -55,21 +55,21 @@ function RoleTable() {
   });
 
   const handleDeleteAll = async (ids = []) => {
-    mutationDeleteRoles.mutate({ ids });
+    mutationDeleteUsers.mutate({ ids });
   };
 
-  const { data: queryGetRoleListData = {} } = useQuery({
+  const { data: queryGetUserListData = {} } = useQuery({
     queryKey: [`${keyList}-${queryParams.page}`],
-    queryFn: () => getRoleList(queryParams),
+    queryFn: () => getUserList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetRoleListData;
+  const { data, errors } = queryGetUserListData;
   if (errors) toast.error(errors);
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
   return (
     <CTTable
-      rowKey={'role_id'}
+      rowKey={'user_id'}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}
@@ -79,12 +79,12 @@ function RoleTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ role_id }) => navigate(`${currentRootRoute}/${role_id}${queryParamsString}`)}
-      onEdit={({ role_id }) => navigate(`${currentRootRoute}/edit/${role_id}${queryParamsString}`)}
-      onCopy={({ role_id }) => navigate(`${currentRootRoute}/copy/${role_id}${queryParamsString}`)}
-      onDelete={({ role_id }) => handleDeleteAll([role_id])}
+      onView={({ user_id }) => navigate(`${currentRootRoute}/${user_id}${queryParamsString}`)}
+      onEdit={({ user_id }) => navigate(`${currentRootRoute}/edit/${user_id}${queryParamsString}`)}
+      onCopy={({ user_id }) => navigate(`${currentRootRoute}/copy/${user_id}${queryParamsString}`)}
+      onDelete={({ user_id }) => handleDeleteAll([user_id])}
     />
   );
 }
 
-export default RoleTable;
+export default UserTable;

@@ -35,12 +35,13 @@ export default function useCurrentPage({ keyIdParams = 'id', isPaging = true } =
   return {
     isEdit,
     isView,
-    isCreate: !isEdit && !isView,
     isCopy,
+    isCreate: !isEdit && !isView && !isCopy,
     id,
     currentRootRoute,
     currentRoute: pathname,
     params,
+    queryParamsString: `?${searchParams.toString()}`,
     queryParams,
     setQueryParams,
   };

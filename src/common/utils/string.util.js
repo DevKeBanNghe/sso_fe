@@ -21,4 +21,6 @@ const capitalizeFirstLetter = (str, isTrim = false, typeTrim) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export { toLowerCase, toUpperCase, removeDiacritics, capitalizeFirstLetter, trimString };
+const genUUID = () => crypto.randomUUID();
+
+export { toLowerCase, toUpperCase, removeDiacritics, capitalizeFirstLetter, trimString, genUUID };

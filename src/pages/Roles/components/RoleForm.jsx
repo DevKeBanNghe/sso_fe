@@ -1,13 +1,13 @@
 import { Card, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import CTModal from 'components/shared/CTModal';
 import { useForm, useFormContext } from 'react-hook-form';
 import { getGroupRoleOptions } from 'pages/GroupRole/service';
 import { toast } from 'common/utils';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createRole, updateRole } from '../service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createRole, getRoleDetail, updateRole } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, PlusCircleFilled, ImportOutlined } from '@ant-design/icons';
@@ -20,8 +20,8 @@ import GroupRoleForm from 'pages/GroupRole/components/GroupRoleForm';
 
 function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
   const [isOpenGroupRoleModal, setIsOpenGroupRoleModal] = useState(false);
-  const { keyList } = useQueryKeys();
-  const { id: currentRoleId, isEdit, setQueryParams } = useCurrentPage();
+  const { keyList, keyDetail } = useQueryKeys();
+  const { id: currentRoleId, isEdit, setQueryParams, isCopy } = useCurrentPage();
   const groupRoleFormRef = useRef();
 
   useImperativeHandle(ref, () => ({
@@ -33,10 +33,12 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
     handleSubmit,
     reset,
     formState: { errors: formStateErrors },
+    setFocus,
   } = (isFormModal ? useForm : useFormContext)();
   const onSubmit = async (values) => {
+    if (isCopy) delete values.role_id;
     const payload = { ...values, group_role_id: getDataSelect(values, 'group_role_id') };
-    currentRoleId
+    currentRoleId && isEdit
       ? mutationUpdateRoles.mutate({ ...payload, role_id: parseInt(currentRoleId) })
       : mutationCreateRoles.mutate(payload);
   };
@@ -130,6 +132,19 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
     [formStateErrors],
   );
 
+  const { data: queryGetRoleDetail = {} } = useQuery({
+    queryKey: [keyDetail, currentRoleId],
+    queryFn: () => getRoleDetail(currentRoleId),
+    enabled: currentRoleId ? true : false,
+  });
+  const { data: dataGetRoleDetail } = queryGetRoleDetail;
+
+  useEffect(() => {
+    if (!dataGetRoleDetail) return () => {};
+    setFocus('role_name');
+    reset(dataGetRoleDetail);
+  }, [dataGetRoleDetail]);
+
   return (
     <>
       <Card style={{ width: '100%' }}>
@@ -145,8 +160,7 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         open={isOpenGroupRoleModal}
         title='Group Role add'
         onCancel={() => setIsOpenGroupRoleModal(false)}
-        onOk={() => groupRoleFormRef.current.onSubmit()}
-      >
+        onOk={() => groupRoleFormRef.current.onSubmit()}>
         <GroupRoleForm ref={groupRoleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

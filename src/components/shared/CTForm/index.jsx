@@ -3,6 +3,7 @@ import useCurrentPage from 'hooks/useCurrentPage';
 import { useMemo } from 'react';
 import { Controller } from 'react-hook-form';
 import { useNavigate, useResolvedPath } from 'react-router-dom';
+import CheckPermission from '../CheckPermission';
 
 export default function CTForm({
   name = 'form-template',
@@ -11,6 +12,7 @@ export default function CTForm({
   onSubmit,
   actions = [],
   isShowDefaultActions = true,
+  permission_keys_default_actions = [],
   ...props
 }) {
   const navigate = useNavigate();
@@ -62,19 +64,20 @@ export default function CTForm({
       })}
 
       {actions.map(({ style = {}, type: htmlType, ...action }, index) => (
-        <Form.Item key={`actions-${name}-${index}`}>
-          <Button
-            disabled={action.disabled ?? isView}
-            size='large'
-            type='primary'
-            htmlType={htmlType ?? 'submit'}
-            className='login-form-button'
-            style={{ width: '100%', ...style }}
-            {...action}
-          >
-            {action.content ?? 'Submit'}
-          </Button>
-        </Form.Item>
+        <CheckPermission key={`actions-${name}-${index}`} permission_keys={permission_keys_default_actions}>
+          <Form.Item>
+            <Button
+              disabled={action.disabled ?? isView}
+              size='large'
+              type='primary'
+              htmlType={htmlType ?? 'submit'}
+              className='login-form-button'
+              style={{ width: '100%', ...style }}
+              {...action}>
+              {action.content ?? 'Submit'}
+            </Button>
+          </Form.Item>
+        </CheckPermission>
       ))}
     </Form>
   );

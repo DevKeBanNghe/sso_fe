@@ -1,8 +1,13 @@
 import { Card } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
-import { createGroupPermission, getGroupPermissionOptions, updateGroupPermission } from 'pages/GroupPermission/service';
+import {
+  createGroupPermission,
+  getGroupPermissionDetail,
+  getGroupPermissionOptions,
+  updateGroupPermission,
+} from 'pages/GroupPermission/service';
 import { toast } from 'common/utils';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
@@ -12,7 +17,7 @@ import CTDebounceSelect from 'components/shared/CTDebounceSelect';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useQueryKeys from 'hooks/useQueryKeys';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPermissionOptions } from 'pages/Permissions/service';
 
 function GroupPermissionFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
@@ -21,9 +26,10 @@ function GroupPermissionFormRef({ isShowDefaultActions = true, isFormModal = !is
     control,
     handleSubmit,
     reset,
+    setFocus,
   } = (isFormModal ? useForm : useFormContext)();
   const { id: currentGroupPermissionId, isEdit, isCopy, setQueryParams } = useCurrentPage();
-  const { keyList } = useQueryKeys();
+  const { keyList, keyDetail } = useQueryKeys();
   const handleGroupPermissionImport = () => {};
 
   useImperativeHandle(ref, () => ({
@@ -97,12 +103,6 @@ function GroupPermissionFormRef({ isShowDefaultActions = true, isFormModal = !is
       },
     },
     {
-      field: 'group_permission_route_resources',
-      render: ({ field }) => {
-        return <CTInput {...field} autoSize size='large' placeholder='Group Permission Route Resources' />;
-      },
-    },
-    {
       field: 'group_permission_name',
       rules: {
         required: 'Please input your new group_permission_name!',
@@ -151,6 +151,19 @@ function GroupPermissionFormRef({ isShowDefaultActions = true, isFormModal = !is
       },
     },
   ];
+
+  const { data: queryGetGroupPermissionDetail = {} } = useQuery({
+    queryKey: [keyDetail, currentGroupPermissionId],
+    queryFn: () => getGroupPermissionDetail(currentGroupPermissionId),
+    enabled: currentGroupPermissionId ? true : false,
+  });
+  const { data: dataGetGroupPermissionDetail } = queryGetGroupPermissionDetail;
+
+  useEffect(() => {
+    if (!dataGetGroupPermissionDetail) return () => {};
+    setFocus('group_permission_name');
+    reset(dataGetGroupPermissionDetail);
+  }, [dataGetGroupPermissionDetail]);
 
   return (
     <>

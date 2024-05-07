@@ -1,13 +1,13 @@
 import { Card, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CTModal from 'components/shared/CTModal';
 import { useFormContext } from 'react-hook-form';
 import { getGroupPermissionOptions } from 'pages/GroupPermission/service';
 import { toast } from 'common/utils';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPermission, updatePermission } from '../service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createPermission, getPermissionDetail, updatePermission } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, PlusCircleFilled, ImportOutlined } from '@ant-design/icons';
@@ -20,7 +20,7 @@ import GroupPermissionForm from 'pages/GroupPermission/components/GroupPermissio
 
 function PermissionForm() {
   const [isOpenGroupPermissionModal, setIsOpenGroupPermissionModal] = useState(false);
-  const { keyList } = useQueryKeys();
+  const { keyList, keyDetail } = useQueryKeys();
   const { id: currentPermissionId, isEdit, isCopy, setQueryParams } = useCurrentPage();
   const groupPermissionFormRef = useRef();
 
@@ -29,6 +29,7 @@ function PermissionForm() {
     handleSubmit,
     reset,
     formState: { errors: formStateErrors },
+    setFocus,
   } = useFormContext();
   const onSubmit = async (values) => {
     if (isCopy) delete values.permission_id;
@@ -89,6 +90,15 @@ function PermissionForm() {
         },
       },
       {
+        field: 'permission_router',
+        rules: {
+          required: 'Please input your new permission_router!',
+        },
+        render: ({ field }) => {
+          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Permission Router' />;
+        },
+      },
+      {
         field: 'permission_name',
         rules: {
           required: 'Please input your new permission_name!',
@@ -138,6 +148,19 @@ function PermissionForm() {
     [formStateErrors],
   );
 
+  const { data: queryGetPermissionDetail = {} } = useQuery({
+    queryKey: [keyDetail, currentPermissionId],
+    queryFn: () => getPermissionDetail(currentPermissionId),
+    enabled: currentPermissionId ? true : false,
+  });
+  const { data: dataGetPermissionDetail } = queryGetPermissionDetail;
+
+  useEffect(() => {
+    if (!dataGetPermissionDetail) return () => {};
+    setFocus('permission_name');
+    reset(dataGetPermissionDetail);
+  }, [dataGetPermissionDetail]);
+
   return (
     <>
       <Card style={{ width: '100%' }}>
@@ -152,8 +175,7 @@ function PermissionForm() {
         open={isOpenGroupPermissionModal}
         title='Group Permission add'
         onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}
-      >
+        onOk={() => groupPermissionFormRef.current.onSubmit()}>
         <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

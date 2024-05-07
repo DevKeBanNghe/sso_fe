@@ -1,10 +1,8 @@
 import CTTable from 'components/shared/CTTable';
 import useQueryKeys from 'hooks/useQueryKeys';
-import { useFormContext } from 'react-hook-form';
-import { deletePermissions, getPermissionDetail, getPermissionList } from '../service';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { deletePermissions, getPermissionList } from '../service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
@@ -23,6 +21,12 @@ const columns = [
     key: 'permission_key',
   },
   {
+    title: 'Permission Router',
+    width: 70,
+    dataIndex: 'permission_router',
+    key: 'permission_router',
+  },
+  {
     title: 'Group Permision',
     width: 70,
     dataIndex: 'GroupPermission',
@@ -38,35 +42,32 @@ const columns = [
 ];
 function PermissionTable() {
   const navigate = useNavigate();
-  const { reset, setFocus } = useFormContext();
-  const { keyDetail, keyList } = useQueryKeys();
+  const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
-  const { isEdit, isView, id: currentPermissionId, currentRootRoute, queryParams, setQueryParams } = useCurrentPage();
+  const {
+    id: currentPermissionId,
+    currentRootRoute,
+    queryParams,
+    setQueryParams,
+    queryParamsString,
+  } = useCurrentPage();
 
-  const { data: queryGetPermissionDetail = {} } = useQuery({
-    queryKey: [keyDetail, currentPermissionId],
-    queryFn: () => getPermissionDetail(currentPermissionId),
-    enabled: currentPermissionId ? true : false,
+  const mutationDeletePermissions = useMutation({
+    mutationFn: deletePermissions,
+    onSuccess: async ({ errors }, { ids }) => {
+      if (errors) return toast.error(errors);
+      toast.success('Delete success');
+      if (ids.includes(parseInt(currentPermissionId))) {
+        return navigate(`${currentRootRoute}${queryParamsString}`);
+      }
+      await queryClient.fetchQuery({
+        queryKey: [`${keyList}-${queryParams.page}`],
+      });
+    },
   });
-  const { data: dataGetPermissionDetail } = queryGetPermissionDetail;
-
-  useEffect(() => {
-    if (!dataGetPermissionDetail) return () => {};
-    setFocus('permission_name');
-    reset(dataGetPermissionDetail);
-  }, [dataGetPermissionDetail]);
 
   const handleDeleteAll = async (ids = []) => {
-    const { errors } = await deletePermissions({ ids });
-    if (errors) return toast.error(errors);
-    queryClient.fetchQuery({
-      queryKey: [`${keyList}-${queryParams.page}`],
-    });
-    if ((isEdit || isView) && ids.includes(parseInt(currentPermissionId))) {
-      reset({ permission_name: '' });
-      navigate(currentRootRoute);
-    }
-    return toast.success('Delete success');
+    mutationDeletePermissions.mutate({ ids });
   };
 
   const { data: queryGetPermissionListData = {} } = useQuery({
@@ -90,10 +91,10 @@ function PermissionTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ permission_id }) => navigate(`${currentRootRoute}/${permission_id}`)}
-      onEdit={({ permission_id }) => navigate(`${currentRootRoute}/edit/${permission_id}`)}
+      onView={({ permission_id }) => navigate(`${currentRootRoute}/${permission_id}${queryParamsString}`)}
+      onEdit={({ permission_id }) => navigate(`${currentRootRoute}/edit/${permission_id}${queryParamsString}`)}
       onDelete={({ permission_id }) => handleDeleteAll([permission_id])}
-      onCopy={({ permission_id }) => navigate(`${currentRootRoute}/copy/${permission_id}`)}
+      onCopy={({ permission_id }) => navigate(`${currentRootRoute}/copy/${permission_id}${queryParamsString}`)}
     />
   );
 }

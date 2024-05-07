@@ -1,10 +1,8 @@
 import CTTable from 'components/shared/CTTable';
 import useQueryKeys from 'hooks/useQueryKeys';
-import { useFormContext } from 'react-hook-form';
-import { deleteGroupRole, getGroupRoleDetail, getGroupRoleList } from '../service';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { deleteGroupRole, getGroupRoleList } from '../service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
@@ -46,35 +44,26 @@ const columns = [
 ];
 function GroupRoleTable() {
   const navigate = useNavigate();
-  const { reset, setFocus } = useFormContext();
-  const { keyDetail, keyList } = useQueryKeys();
+  const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
-  const { isEdit, isView, id: currentGroupRoleId, currentRootRoute, queryParams, setQueryParams } = useCurrentPage();
+  const { id: currentGroupRoleId, currentRootRoute, queryParams, setQueryParams, queryParamsString } = useCurrentPage();
 
-  const { data: queryGetGroupRoleDetail = {} } = useQuery({
-    queryKey: [keyDetail, currentGroupRoleId],
-    queryFn: () => getGroupRoleDetail(currentGroupRoleId),
-    enabled: currentGroupRoleId ? true : false,
+  const mutationDeleteGroupRole = useMutation({
+    mutationFn: deleteGroupRole,
+    onSuccess: async ({ errors }, { ids }) => {
+      if (errors) return toast.error(errors);
+      toast.success('Delete success');
+      if (ids.includes(parseInt(currentGroupRoleId))) {
+        return navigate(`${currentRootRoute}${queryParamsString}`);
+      }
+      await queryClient.fetchQuery({
+        queryKey: [`${keyList}-${queryParams.page}`],
+      });
+    },
   });
-  const { data: dataGetGroupRoleDetail } = queryGetGroupRoleDetail;
-
-  useEffect(() => {
-    if (!dataGetGroupRoleDetail) return () => {};
-    setFocus('group_role_name');
-    reset(dataGetGroupRoleDetail);
-  }, [dataGetGroupRoleDetail]);
 
   const handleDeleteAll = async (ids = []) => {
-    const { errors } = await deleteGroupRole({ ids });
-    if (errors) return toast.error(errors);
-    queryClient.fetchQuery({
-      queryKey: [`${keyList}-${queryParams.page}`],
-    });
-    if ((isEdit || isView) && ids.includes(parseInt(currentGroupRoleId))) {
-      reset({ group_role_name: '' });
-      navigate(currentRootRoute);
-    }
-    return toast.success('Delete success');
+    mutationDeleteGroupRole.mutate({ ids });
   };
 
   const { data: queryGetGroupRoleListData = {} } = useQuery({
@@ -97,10 +86,10 @@ function GroupRoleTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ group_role_id }) => navigate(`${currentRootRoute}/${group_role_id}`)}
-      onEdit={({ group_role_id }) => navigate(`${currentRootRoute}/edit/${group_role_id}`)}
+      onView={({ group_role_id }) => navigate(`${currentRootRoute}/${group_role_id}${queryParamsString}`)}
+      onEdit={({ group_role_id }) => navigate(`${currentRootRoute}/edit/${group_role_id}${queryParamsString}`)}
       onDelete={({ group_role_id }) => handleDeleteAll([group_role_id])}
-      onCopy={({ group_role_id }) => navigate(`${currentRootRoute}/copy/${group_role_id}`)}
+      onCopy={({ group_role_id }) => navigate(`${currentRootRoute}/copy/${group_role_id}${queryParamsString}`)}
     />
   );
 }

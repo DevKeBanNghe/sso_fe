@@ -1,27 +1,29 @@
 import { Card, Input } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useImperativeHandle, useMemo } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'common/utils';
 import { getDataSelect } from 'common/utils/select.util';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createWebpage, updateWebpage } from '../service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, ImportOutlined } from '@ant-design/icons';
 import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
+import { PERMISSIONS_KEY_MUTATION } from '../const';
 
 function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
-  const { keyList } = useQueryKeys();
-  const { id: currentWebpageId, isEdit, setQueryParams } = useCurrentPage();
+  const { keyList, keyDetail } = useQueryKeys();
+  const { id: currentWebpageId, isEdit, setQueryParams, isCopy } = useCurrentPage();
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors: formStateErrors },
+    setFocus,
   } = (isFormModal ? useForm : useFormContext)();
 
   useImperativeHandle(ref, () => ({
@@ -29,8 +31,9 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
   }));
 
   const onSubmit = async (values) => {
+    if (isCopy) delete values.webpage_id;
     const payload = { ...values, group_webpage_id: getDataSelect(values, 'group_webpage_id') };
-    currentWebpageId
+    currentWebpageId && isEdit
       ? mutationUpdateWebpages.mutate({ ...payload, webpage_id: parseInt(currentWebpageId) })
       : mutationCreateWebpages.mutate(payload);
   };
@@ -46,7 +49,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
   const mutationCreateWebpages = useMutation({
     mutationFn: createWebpage,
     onSuccess: async (data) => {
-      if (!data.errors) reset({ webpage_url: '' });
+      if (!data.errors) reset();
       handleSubmitSuccess(data);
     },
   });
@@ -87,6 +90,19 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
     [formStateErrors],
   );
 
+  const { data: queryGetWebpageDetail = {} } = useQuery({
+    queryKey: [keyDetail, currentWebpageId],
+    queryFn: () => getWebpageDetail(currentWebpageId),
+    enabled: currentWebpageId ? true : false,
+  });
+  const { data: dataGetWebpageDetail } = queryGetWebpageDetail;
+
+  useEffect(() => {
+    if (!dataGetWebpageDetail) return () => {};
+    setFocus('webpage_url');
+    reset(dataGetWebpageDetail);
+  }, [dataGetWebpageDetail]);
+
   return (
     <>
       <Card style={{ width: '100%' }}>
@@ -96,6 +112,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
           isShowDefaultActions={isShowDefaultActions}
+          permission_keys_default_actions={PERMISSIONS_KEY_MUTATION}
         />
       </Card>
     </>
