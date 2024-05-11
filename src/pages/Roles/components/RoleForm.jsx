@@ -1,4 +1,4 @@
-import { Card, Col, Input, Row } from 'antd';
+import { Card, Checkbox, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import CTModal from 'components/shared/CTModal';
@@ -123,6 +123,16 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         },
       },
       {
+        field: 'role_is_all_permissions',
+        render: ({ field }) => {
+          return (
+            <Checkbox {...field} checked={field.value}>
+              All Permissions
+            </Checkbox>
+          );
+        },
+      },
+      {
         field: 'role_description',
         render: ({ field }) => {
           return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Role Description' />;
@@ -160,8 +170,7 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         open={isOpenGroupRoleModal}
         title='Group Role add'
         onCancel={() => setIsOpenGroupRoleModal(false)}
-        onOk={() => groupRoleFormRef.current.onSubmit()}
-      >
+        onOk={() => groupRoleFormRef.current.onSubmit()}>
         <GroupRoleForm ref={groupRoleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

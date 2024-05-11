@@ -6,6 +6,7 @@ const initialState = {
   user_name: '',
   permissions: [],
   loading: '',
+  isAdmin: false,
 };
 
 export const userSlice = createSlice({
@@ -15,15 +16,15 @@ export const userSlice = createSlice({
     // setUser: (state, { payload }) => {},
   },
   extraReducers: (builder) => {
-    // Add reducers for additional action types here, and handle loading state as needed
     builder
       .addCase(getUserInfo.pending, (state) => {
         state.loading = LOADING_STATUS.PENDING;
       })
       .addCase(getUserInfo.fulfilled, (state, { payload }) => {
-        state.user_name = payload.user_name;
-        state.permissions = payload.permissions;
-        state.loading = LOADING_STATUS.IDLE;
+        payload.loading = LOADING_STATUS.IDLE;
+        for (const field of Object.keys(initialState)) {
+          state[field] = payload[field];
+        }
       })
       .addCase(getUserInfo.rejected, (state) => {
         state.loading = LOADING_STATUS.IDLE;

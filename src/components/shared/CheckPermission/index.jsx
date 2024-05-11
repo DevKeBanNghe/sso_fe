@@ -6,6 +6,7 @@ export default function CheckPermission({ children, permission_keys }) {
   const user = useUser();
 
   const isValid = useMemo(() => {
+    if (user.isAdmin) return true;
     if (isString(permission_keys)) return user.permissions.includes(permission_keys);
     if (isObject(permission_keys)) {
       return Object.values(permission_keys).every((permission_key) => user.permissions.includes(permission_key));

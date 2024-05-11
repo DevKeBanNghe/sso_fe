@@ -16,10 +16,10 @@ const HomePage = () => {
   const navigate = useNavigate();
   const user = useUser();
   const { isAllowed } = useAuth();
-  const { currentRoute } = useCurrentPage({ isPaging: false });
+  const { currentRoute, queryParamsString } = useCurrentPage({ isPaging: false });
 
   useEffect(() => {
-    if (!user.user_name && user.loading === LOADING_STATUS.IDLE) navigate('/sign-in');
+    if (!user.user_name && user.loading === LOADING_STATUS.IDLE) navigate(`/sign-in${queryParamsString}`);
   }, [user]);
 
   useEffect(() => {
@@ -43,8 +43,7 @@ const HomePage = () => {
               style={{
                 padding: 12,
                 minHeight: '100vh',
-              }}
-            >
+              }}>
               {outlet}
             </div>
           </Content>

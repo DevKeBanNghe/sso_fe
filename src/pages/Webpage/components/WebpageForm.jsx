@@ -13,6 +13,8 @@ import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { PERMISSIONS_KEY_MUTATION } from '../const';
+import { upperCase } from 'lodash';
+import useGenValueForm from 'hooks/useGenValueForm';
 
 function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
   const { keyList, keyDetail } = useQueryKeys();
@@ -57,6 +59,13 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
     mutationFn: updateWebpage,
     onSuccess: handleSubmitSuccess,
   });
+
+  useGenValueForm({
+    field_name: 'webpage_key',
+    format: (values) => `WP_${upperCase(values[0])}`,
+    keys_dependency: ['webpage_name'],
+  });
+
   const formItems = useMemo(
     () => [
       {
@@ -72,6 +81,15 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
         },
       },
       {
+        field: 'webpage_name',
+        rules: {
+          required: 'Please input your new webpage_name!',
+        },
+        render: ({ field }) => {
+          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage name' />;
+        },
+      },
+      {
         field: 'webpage_url',
         rules: {
           required: 'Please input your new webpage_url!',
@@ -80,6 +98,16 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
           return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage url' />;
         },
       },
+      {
+        field: 'webpage_key',
+        rules: {
+          required: 'Please input your new webpage_key!',
+        },
+        render: ({ field }) => {
+          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage key' />;
+        },
+      },
+
       {
         field: 'webpage_description',
         render: ({ field }) => {

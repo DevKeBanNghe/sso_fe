@@ -12,14 +12,16 @@ import PhoneNumberInput from 'components/shared/PhoneNumberInput';
 import SocialsSignUp from './SocialsSignUp';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
+import { redirectTo } from 'common/utils/common.util';
 export default function SignUpForm() {
   const navigate = useNavigate();
   const { control, handleSubmit, watch } = useForm();
 
   const mutationSignUp = useMutation({
     mutationFn: signUp,
-    onSuccess: ({ errors }) => {
+    onSuccess: ({ data, errors }) => {
       if (errors) return toast.error(errors);
+      if (data.webpage_url) redirectTo(data.webpage_url);
     },
   });
 

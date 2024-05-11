@@ -10,10 +10,12 @@ import { toast } from 'common/utils';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
 import { redirectTo } from 'common/utils/common.util';
+import useCurrentPage from 'hooks/useCurrentPage';
 
 export default function SignInForm() {
   const { control, handleSubmit } = useForm();
   const navigate = useNavigate();
+  const { queryParams } = useCurrentPage({ isPaging: false });
   const formItems = [
     {
       key: 'logo',
@@ -67,17 +69,15 @@ export default function SignInForm() {
   ];
   const mutationSignIn = useMutation({
     mutationFn: signIn,
-    onSuccess: ({ errors }) => {
+    onSuccess: ({ data, errors }) => {
       if (errors) return toast.error(errors);
-      // redirect to page user access after login success
-      // redirectTo('https://google.com');
-      redirectTo('/');
+      if (data.webpage_url) redirectTo(data.webpage_url);
     },
   });
 
   const onSubmit = async (values) => {
     try {
-      mutationSignIn.mutate(values);
+      mutationSignIn.mutate({ ...values, webpage_key: queryParams.webpage_key });
     } catch (error) {
       toast.error(error.message);
     }
