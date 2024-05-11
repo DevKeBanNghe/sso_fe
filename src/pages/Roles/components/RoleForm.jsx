@@ -170,7 +170,8 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         open={isOpenGroupRoleModal}
         title='Group Role add'
         onCancel={() => setIsOpenGroupRoleModal(false)}
-        onOk={() => groupRoleFormRef.current.onSubmit()}>
+        onOk={() => groupRoleFormRef.current.onSubmit()}
+      >
         <GroupRoleForm ref={groupRoleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>
