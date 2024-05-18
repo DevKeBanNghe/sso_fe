@@ -71,7 +71,7 @@ export default function SignInForm() {
     mutationFn: signIn,
     onSuccess: ({ data, errors }) => {
       if (errors) return toast.error(errors);
-      if (data.webpage_url) redirectTo(data.webpage_url);
+      redirectTo(data.webpage_url ?? '/');
     },
   });
 

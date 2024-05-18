@@ -75,8 +75,7 @@ function PermissionTable() {
     queryFn: () => getPermissionList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetPermissionListData;
-  if (errors) toast.error(errors);
+  const { data } = queryGetPermissionListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
   return (

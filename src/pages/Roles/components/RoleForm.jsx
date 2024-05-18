@@ -45,11 +45,10 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
 
   const handleRolesImport = () => {};
   const handleFetchGroupRoleOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['group_role_options'],
       queryFn: () => getGroupRoleOptions({ group_role_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'group_role_id', label: 'group_role_name' });
   };
   const queryClient = useQueryClient();
@@ -170,8 +169,7 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         open={isOpenGroupRoleModal}
         title='Group Role add'
         onCancel={() => setIsOpenGroupRoleModal(false)}
-        onOk={() => groupRoleFormRef.current.onSubmit()}
-      >
+        onOk={() => groupRoleFormRef.current.onSubmit()}>
         <GroupRoleForm ref={groupRoleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

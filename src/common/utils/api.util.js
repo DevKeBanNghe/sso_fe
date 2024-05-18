@@ -1,4 +1,6 @@
-import axios from 'axios';
+import axios, { HttpStatusCode } from 'axios';
+import { getUserInfo } from 'common/reducers/user.action';
+import { store } from 'reduxApp/store';
 // import { ROUTE_REFRESH_TOKEN } from 'common/consts/jwt.const';
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,7 +20,12 @@ instance.interceptors.response.use(
   ({ data: data_res, status }) => {
     return { ...data_res, status };
   },
-  ({ response: { data, status } }) => {
+  async ({ response: { data, status } }) => {
+    if (status === HttpStatusCode.Unauthorized) {
+      const { errors } = await instance.get(`auth/refresh-token`);
+      if (errors) throw new Error(errors.toString());
+      store.dispatch(getUserInfo());
+    }
     return { ...data, status };
   },
 );

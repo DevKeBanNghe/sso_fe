@@ -63,8 +63,7 @@ function RoleTable() {
     queryFn: () => getRoleList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetRoleListData;
-  if (errors) toast.error(errors);
+  const { data } = queryGetRoleListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
   return (

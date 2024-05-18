@@ -12,6 +12,10 @@ const CTTextTruncate = ({ children, maxLength = 50, ...props }) => {
     return children;
   }, [isHide, children]);
 
+  if (children?.length <= maxLength) {
+    return children;
+  }
+
   return (
     <Text {...props}>
       {text && (

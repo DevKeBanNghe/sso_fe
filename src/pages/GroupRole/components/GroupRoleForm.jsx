@@ -83,38 +83,34 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
   });
 
   const handleFetchWebPageOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['webpage_options'],
       queryFn: () => getWebPageOptions({ webpage_url: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'webpage_id', label: 'webpage_url' });
   };
 
   const handleFetchGroupRoleOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['group_role_options'],
       queryFn: () => getGroupRoleOptions({ group_role_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'group_role_id', label: 'group_role_name' });
   };
 
   const handleFetchRoleOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['role_options'],
       queryFn: () => getRoleOptions({ role_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'role_id', label: 'role_name' });
   };
 
   const handleFetchGroupPermissionOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['group_permission_options'],
       queryFn: () => getGroupPermissionOptions({ group_permission_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'group_permission_id', label: 'group_permission_name' });
   };
 
@@ -260,24 +256,21 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
         open={isOpenGroupPermissionModal}
         title='Group Permission add'
         onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}
-      >
+        onOk={() => groupPermissionFormRef.current.onSubmit()}>
         <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
       </CTModal>
       <CTModal
         open={isOpenWebpageModal}
         title='Webpage add'
         onCancel={() => setIsOpenWebpageModal(false)}
-        onOk={() => webpageFormRef.current.onSubmit()}
-      >
+        onOk={() => webpageFormRef.current.onSubmit()}>
         <WebpageForm ref={webpageFormRef} isShowDefaultActions={false} />
       </CTModal>
       <CTModal
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}
-      >
+        onOk={() => roleFormRef.current.onSubmit()}>
         <RoleForm ref={roleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

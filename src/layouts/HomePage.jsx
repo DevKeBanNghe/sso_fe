@@ -19,11 +19,8 @@ const HomePage = () => {
   const { currentRoute, queryParamsString } = useCurrentPage({ isPaging: false });
 
   useEffect(() => {
-    if (!user.user_name && user.loading === LOADING_STATUS.IDLE) navigate(`/sign-in${queryParamsString}`);
-  }, [user]);
-
-  useEffect(() => {
-    if (!user.user_name || currentRoute === '/') return () => {};
+    if (!user.user_name && user.loading === LOADING_STATUS.IDLE) return navigate(`/sign-in${queryParamsString}`);
+    if (currentRoute === '/') return navigate(`/users${queryParamsString}`);
     if (!isAllowed)
       navigate('error/403', {
         state: {
@@ -43,8 +40,7 @@ const HomePage = () => {
               style={{
                 padding: 12,
                 minHeight: '100vh',
-              }}
-            >
+              }}>
               {outlet}
             </div>
           </Content>

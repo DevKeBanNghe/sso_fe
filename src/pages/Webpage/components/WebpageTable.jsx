@@ -61,8 +61,7 @@ function WebpageTable() {
     queryFn: () => getWebpageList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetWebpageListData;
-  if (errors) toast.error(errors);
+  const { data } = queryGetWebpageListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
   return (
     <CTTable

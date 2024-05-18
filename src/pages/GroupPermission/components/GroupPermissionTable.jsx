@@ -67,8 +67,7 @@ function GroupPermissionTable() {
     queryFn: () => getGroupPermissionList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetGroupPermissionListData;
-  if (errors) toast.error(errors);
+  const { data } = queryGetGroupPermissionListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
   return (

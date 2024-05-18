@@ -72,20 +72,18 @@ function GroupPermissionFormRef({ isShowDefaultActions = true, isFormModal = !is
   });
 
   const handleFetchGroupPermissionOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['group_permission_options'],
       queryFn: () => getGroupPermissionOptions({ group_permission_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'group_permission_id', label: 'group_permission_name' });
   };
 
   const handleFetchPermissionOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['permission_options'],
       queryFn: () => getPermissionOptions({ permission_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'permission_id', label: 'permission_name' });
   };
 

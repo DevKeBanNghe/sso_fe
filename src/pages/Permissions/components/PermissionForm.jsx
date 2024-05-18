@@ -41,11 +41,10 @@ function PermissionForm() {
 
   const handlePermissionsImport = () => {};
   const handleFetchGroupPermissionOptions = async (value) => {
-    const { data, errors } = await queryClient.fetchQuery({
+    const { data } = await queryClient.fetchQuery({
       queryKey: ['group_permission_options'],
       queryFn: () => getGroupPermissionOptions({ group_permission_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    if (errors) return toast.error(errors);
     return transferToOptionSelect({ data, value: 'group_permission_id', label: 'group_permission_name' });
   };
   const queryClient = useQueryClient();
@@ -175,8 +174,7 @@ function PermissionForm() {
         open={isOpenGroupPermissionModal}
         title='Group Permission add'
         onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}
-      >
+        onOk={() => groupPermissionFormRef.current.onSubmit()}>
         <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

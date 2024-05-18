@@ -63,8 +63,7 @@ function UserTable() {
     queryFn: () => getUserList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetUserListData;
-  if (errors) toast.error(errors);
+  const { data } = queryGetUserListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
   return (

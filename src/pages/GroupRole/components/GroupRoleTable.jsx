@@ -71,8 +71,7 @@ function GroupRoleTable() {
     queryFn: () => getGroupRoleList(queryParams),
     staleTime: STALE_TIME_GET_LIST,
   });
-  const { data, errors } = queryGetGroupRoleListData;
-  if (errors) toast.error(errors);
+  const { data } = queryGetGroupRoleListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
   return (
     <CTTable
