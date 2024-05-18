@@ -174,7 +174,8 @@ function PermissionForm() {
         open={isOpenGroupPermissionModal}
         title='Group Permission add'
         onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}>
+        onOk={() => groupPermissionFormRef.current.onSubmit()}
+      >
         <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

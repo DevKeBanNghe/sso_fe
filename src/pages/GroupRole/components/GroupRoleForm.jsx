@@ -256,21 +256,24 @@ function GroupRoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDe
         open={isOpenGroupPermissionModal}
         title='Group Permission add'
         onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}>
+        onOk={() => groupPermissionFormRef.current.onSubmit()}
+      >
         <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
       </CTModal>
       <CTModal
         open={isOpenWebpageModal}
         title='Webpage add'
         onCancel={() => setIsOpenWebpageModal(false)}
-        onOk={() => webpageFormRef.current.onSubmit()}>
+        onOk={() => webpageFormRef.current.onSubmit()}
+      >
         <WebpageForm ref={webpageFormRef} isShowDefaultActions={false} />
       </CTModal>
       <CTModal
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}>
+        onOk={() => roleFormRef.current.onSubmit()}
+      >
         <RoleForm ref={roleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>
