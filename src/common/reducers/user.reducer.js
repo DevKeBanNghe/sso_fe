@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getUserInfo } from './user.action';
 import { LOADING_STATUS } from 'common/consts/constants.const';
 
+const KEY_SYSTEM = 'SYS_ALL';
+
 const initialState = {
   user_name: '',
   permissions: [],
@@ -13,7 +15,7 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    // setUser: (state, { payload }) => {},
+    setUser: () => {},
   },
   extraReducers: (builder) => {
     builder
@@ -25,6 +27,7 @@ export const userSlice = createSlice({
         for (const field of Object.keys(initialState)) {
           state[field] = payload[field];
         }
+        state.isAdmin = payload.permissions.includes(KEY_SYSTEM);
       })
       .addCase(getUserInfo.rejected, (state) => {
         state.loading = LOADING_STATUS.IDLE;
@@ -33,6 +36,6 @@ export const userSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const { setUser } = userSlice.actions;
+export const { setUser } = userSlice.actions;
 
 export default userSlice.reducer;

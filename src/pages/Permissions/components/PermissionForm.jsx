@@ -1,28 +1,22 @@
-import { Card, Col, Input, Row } from 'antd';
+import { Card, Input } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import CTModal from 'components/shared/CTModal';
+import { useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { getGroupPermissionOptions } from 'pages/GroupPermission/service';
 import { toast } from 'common/utils';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createPermission, getPermissionDetail, updatePermission } from '../service';
+import { createPermission, getPermissionDetail, getPermissionOptions, updatePermission } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
-import { LockOutlined, PlusCircleFilled, ImportOutlined } from '@ant-design/icons';
-import CTIcon from 'components/shared/CTIcon';
+import { LockOutlined, ImportOutlined } from '@ant-design/icons';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
 import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
-import GroupPermissionForm from 'pages/GroupPermission/components/GroupPermissionForm';
 
 function PermissionForm() {
-  const [isOpenGroupPermissionModal, setIsOpenGroupPermissionModal] = useState(false);
   const { keyList, keyDetail } = useQueryKeys();
   const { id: currentPermissionId, isEdit, isCopy, setQueryParams } = useCurrentPage();
-  const groupPermissionFormRef = useRef();
 
   const {
     control,
@@ -33,19 +27,19 @@ function PermissionForm() {
   } = useFormContext();
   const onSubmit = async (values) => {
     if (isCopy) delete values.permission_id;
-    const payload = { ...values, group_permission_id: getDataSelect(values, 'group_permission_id') };
+    const payload = { ...values, permission_id: getDataSelect(values, 'permission_id') };
     currentPermissionId && isEdit
       ? mutationUpdatePermissions.mutate({ ...payload, permission_id: parseInt(currentPermissionId) })
       : mutationCreatePermissions.mutate(payload);
   };
 
   const handlePermissionsImport = () => {};
-  const handleFetchGroupPermissionOptions = async (value) => {
+  const handleFetchPermissionOptions = async (value) => {
     const { data } = await queryClient.fetchQuery({
-      queryKey: ['group_permission_options'],
-      queryFn: () => getGroupPermissionOptions({ group_permission_name: value, limit: SELECT_LIMIT_OPTIONS }),
+      queryKey: ['permission_options'],
+      queryFn: () => getPermissionOptions({ permission_name: value, limit: SELECT_LIMIT_OPTIONS }),
     });
-    return transferToOptionSelect({ data, value: 'group_permission_id', label: 'group_permission_name' });
+    return transferToOptionSelect({ data, value: 'permission_id', label: 'permission_name' });
   };
   const queryClient = useQueryClient();
   const handleSubmitSuccess = ({ errors }) => {
@@ -70,12 +64,9 @@ function PermissionForm() {
       {
         render: () => {
           return (
-            <CTButton
-              style={{ float: 'right' }}
-              icon={<ImportOutlined />}
-              onClick={handlePermissionsImport}
-              content={'Import'}
-            />
+            <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handlePermissionsImport}>
+              Import
+            </CTButton>
           );
         },
       },
@@ -107,31 +98,15 @@ function PermissionForm() {
         },
       },
       {
-        field: 'group_permission_id',
-        rules: {
-          required: 'Please input your new group_permission_id!',
-        },
+        field: 'permission_parent_id',
         render: ({ field }) => {
           return (
-            <Row>
-              <Col span={22}>
-                <CTDebounceSelect
-                  {...field}
-                  formStateErrors={formStateErrors}
-                  placeholder={'Select group permission'}
-                  fetchOptions={handleFetchGroupPermissionOptions}
-                />
-              </Col>
-
-              <Col span={2}>
-                <CTIcon
-                  style={{ marginLeft: '5px', fontSize: '20px', marginTop: '10px' }}
-                  color={'green'}
-                  icon={PlusCircleFilled}
-                  onClick={() => setIsOpenGroupPermissionModal(true)}
-                />
-              </Col>
-            </Row>
+            <CTDebounceSelect
+              {...field}
+              formStateErrors={formStateErrors}
+              placeholder={'Select permission parent'}
+              fetchOptions={handleFetchPermissionOptions}
+            />
           );
         },
       },
@@ -170,14 +145,6 @@ function PermissionForm() {
           onSubmit={handleSubmit(onSubmit)}
         />
       </Card>
-      <CTModal
-        open={isOpenGroupPermissionModal}
-        title='Group Permission add'
-        onCancel={() => setIsOpenGroupPermissionModal(false)}
-        onOk={() => groupPermissionFormRef.current.onSubmit()}
-      >
-        <GroupPermissionForm ref={groupPermissionFormRef} isShowDefaultActions={false} />
-      </CTModal>
     </>
   );
 }

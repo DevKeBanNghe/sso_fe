@@ -74,12 +74,9 @@ function UserFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
       {
         render: () => {
           return (
-            <CTButton
-              style={{ float: 'right' }}
-              icon={<ImportOutlined />}
-              onClick={handleUsersImport}
-              content={'Import'}
-            />
+            <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleUsersImport}>
+              Import
+            </CTButton>
           );
         },
       },
@@ -169,8 +166,7 @@ function UserFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         open={isOpenRoleModal}
         title='Group User add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => groupUserFormRef.current.onSubmit()}
-      >
+        onOk={() => groupUserFormRef.current.onSubmit()}>
         <RoleForm ref={groupUserFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

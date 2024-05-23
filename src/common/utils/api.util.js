@@ -1,7 +1,6 @@
 import axios, { HttpStatusCode } from 'axios';
 import { getUserInfo } from 'common/reducers/user.action';
 import { store } from 'reduxApp/store';
-// import { ROUTE_REFRESH_TOKEN } from 'common/consts/jwt.const';
 const API_URL = import.meta.env.VITE_API_URL;
 
 const instance = axios.create({

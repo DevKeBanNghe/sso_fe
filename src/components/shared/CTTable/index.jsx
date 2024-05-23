@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
-import { Button, Table } from 'antd';
-import createActions from './DefaultActions';
+import { Button, Col, Row, Table } from 'antd';
+import SearchBar from 'layouts/Header/SearchBar';
+import Actions from './Actions';
+import GlobalActions from './GlobalActions';
 
 const CTTable = ({
   fixed = 'bottom',
@@ -12,24 +14,36 @@ const CTTable = ({
   rowKey,
   actions = [],
   isShowDefaultActions = true,
-  onEdit = () => {},
-  onView = () => {},
-  onDelete = () => {},
-  onCopy = () => {},
   handleSelected = () => {},
   onGlobalDelete = () => {},
+  isSearch = true,
+  globalActions = [],
   ...props
 }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const table_actions = useMemo(() => {
-    if (isShowDefaultActions) actions.push(...createActions({ onEdit, onView, onDelete, onCopy }));
-    return actions;
-  }, [actions, isShowDefaultActions, onDelete, onEdit, onView, onCopy]);
 
-  const table_columns = useMemo(
-    () => (columns.length > 0 ? columns.concat(table_actions) : columns),
-    [columns, table_actions],
-  );
+  const table_columns = useMemo(() => {
+    const isShowActions = actions.length > 0 || isShowDefaultActions;
+    if (columns.length === 0 || !isShowActions) return columns;
+
+    const column_action = {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      align: 'center',
+      width: 30,
+      render: (record) => (
+        <Actions
+          isShowDefaultActions={isShowDefaultActions}
+          actions={actions}
+          dataRecord={{ ...record, row_id: record[rowKey] }}
+          onGlobalDelete={onGlobalDelete}
+        />
+      ),
+    };
+
+    return [...columns, column_action];
+  }, [actions, columns, isShowDefaultActions]);
 
   const selectedRowsRef = useRef(new Map());
   const handleSelectedRows = (selectedRowKeys, rowsSelected) => {
@@ -43,9 +57,7 @@ const CTTable = ({
     setSelectedRowKeys([]);
   };
 
-  const table_rows = useMemo(() => {
-    return rows.map((row) => ({ ...row, key: row[rowKey] }));
-  }, [rowKey, rows]);
+  const table_rows = useMemo(() => rows.map((row) => ({ ...row, key: row[rowKey] })), [rowKey, rows]);
 
   return (
     <>
@@ -60,8 +72,7 @@ const CTTable = ({
             onClick={() => {
               onGlobalDelete(selectedRowKeys);
               handleClearAllChecked();
-            }}
-          >
+            }}>
             Delete all
           </Button>
           <span style={{ marginLeft: 8 }}>Selected {selectedRowKeys.length} items</span>
@@ -69,6 +80,13 @@ const CTTable = ({
       ) : (
         <></>
       )}
+
+      <Row style={{ marginBottom: '10px' }}>
+        <Col span={16}>
+          <GlobalActions actions={globalActions} />
+        </Col>
+        <Col span={8}>{isSearch && <SearchBar />}</Col>
+      </Row>
       <Table
         columns={table_columns}
         dataSource={table_rows}

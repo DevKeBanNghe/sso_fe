@@ -22,13 +22,13 @@ function UserTable() {
       key: 'user_name',
       fixed: 'left',
     },
-    {
-      title: 'Role',
-      width: 50,
-      dataIndex: 'Role',
-      key: 'Role',
-      render: (value) => value.role_name,
-    },
+    // {
+    //   title: 'Role',
+    //   width: 50,
+    //   dataIndex: 'Role',
+    //   key: 'Role',
+    //   render: (value) => value.role_name,
+    // },
     {
       title: 'User Description',
       width: 50,
@@ -78,10 +78,6 @@ function UserTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ user_id }) => navigate(`${currentRootRoute}/${user_id}${queryParamsString}`)}
-      onEdit={({ user_id }) => navigate(`${currentRootRoute}/edit/${user_id}${queryParamsString}`)}
-      onCopy={({ user_id }) => navigate(`${currentRootRoute}/copy/${user_id}${queryParamsString}`)}
-      onDelete={({ user_id }) => handleDeleteAll([user_id])}
     />
   );
 }

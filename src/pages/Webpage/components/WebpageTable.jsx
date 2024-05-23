@@ -75,10 +75,6 @@ function WebpageTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ webpage_id }) => navigate(`${currentRootRoute}/${webpage_id}${queryParamsString}`)}
-      onEdit={({ webpage_id }) => navigate(`${currentRootRoute}/edit/${webpage_id}${queryParamsString}`)}
-      onDelete={({ webpage_id }) => handleDeleteAll([webpage_id])}
-      onCopy={({ webpage_id }) => navigate(`${currentRootRoute}/copy/${webpage_id}${queryParamsString}`)}
     />
   );
 }

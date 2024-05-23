@@ -1,24 +1,31 @@
-import { Card, Input } from 'antd';
+import { Card, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'common/utils';
-import { getDataSelect } from 'common/utils/select.util';
+import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
-import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
+import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
-import { LockOutlined, ImportOutlined } from '@ant-design/icons';
+import { LockOutlined, ImportOutlined, PlusCircleFilled } from '@ant-design/icons';
 import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { PERMISSIONS_KEY_MUTATION } from '../const';
 import { upperCase } from 'lodash';
 import useGenValueForm from 'hooks/useGenValueForm';
+import CTDebounceSelect from 'components/shared/CTDebounceSelect';
+import CTIcon from 'components/shared/CTIcon';
+import { getRoleOptions } from 'pages/Roles/service';
+import CTModal from 'components/shared/CTModal';
+import RoleForm from 'pages/Roles/components/RoleForm';
 
 function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
   const { keyList, keyDetail } = useQueryKeys();
   const { id: currentWebpageId, isEdit, setQueryParams, isCopy } = useCurrentPage();
+  const [isOpenRoleModal, setIsOpenRoleModal] = useState(false);
+  const roleFormRef = useRef();
 
   const {
     control,
@@ -66,17 +73,22 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
     keys_dependency: ['webpage_name'],
   });
 
+  const handleFetchRoleOptions = async (value) => {
+    const { data } = await queryClient.fetchQuery({
+      queryKey: ['role_options'],
+      queryFn: () => getRoleOptions({ role_name: value, limit: SELECT_LIMIT_OPTIONS }),
+    });
+    return transferToOptionSelect({ data, value: 'role_id', label: 'role_name' });
+  };
+
   const formItems = useMemo(
     () => [
       {
         render: () => {
           return (
-            <CTButton
-              style={{ float: 'right' }}
-              icon={<ImportOutlined />}
-              onClick={handleWebpagesImport}
-              content={'Import'}
-            />
+            <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleWebpagesImport}>
+              Import
+            </CTButton>
           );
         },
       },
@@ -107,7 +119,31 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
           return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage key' />;
         },
       },
-
+      {
+        field: 'role_ids',
+        render: ({ field }) => {
+          return (
+            <Row>
+              <Col span={22}>
+                <CTDebounceSelect
+                  {...field}
+                  mode={'multiple'}
+                  placeholder={'Select roles'}
+                  fetchOptions={handleFetchRoleOptions}
+                />
+              </Col>
+              <Col span={2}>
+                <CTIcon
+                  style={{ marginLeft: '5px', fontSize: '20px', marginTop: '10px' }}
+                  color={'green'}
+                  icon={PlusCircleFilled}
+                  onClick={() => setIsOpenRoleModal(true)}
+                />
+              </Col>
+            </Row>
+          );
+        },
+      },
       {
         field: 'webpage_description',
         render: ({ field }) => {
@@ -143,6 +179,13 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
           permission_keys_default_actions={PERMISSIONS_KEY_MUTATION}
         />
       </Card>
+      <CTModal
+        open={isOpenRoleModal}
+        title='Role add'
+        onCancel={() => setIsOpenRoleModal(false)}
+        onOk={() => roleFormRef.current.onSubmit()}>
+        <RoleForm ref={roleFormRef} isShowDefaultActions={false} />
+      </CTModal>
     </>
   );
 }

@@ -27,13 +27,6 @@ const columns = [
     key: 'permission_router',
   },
   {
-    title: 'Group Permision',
-    width: 70,
-    dataIndex: 'GroupPermission',
-    key: 'GroupPermission',
-    render: (value) => value.group_permission_name,
-  },
-  {
     title: 'Permission Description',
     width: 70,
     dataIndex: 'permission_description',
@@ -90,10 +83,6 @@ function PermissionTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ permission_id }) => navigate(`${currentRootRoute}/${permission_id}${queryParamsString}`)}
-      onEdit={({ permission_id }) => navigate(`${currentRootRoute}/edit/${permission_id}${queryParamsString}`)}
-      onDelete={({ permission_id }) => handleDeleteAll([permission_id])}
-      onCopy={({ permission_id }) => navigate(`${currentRootRoute}/copy/${permission_id}${queryParamsString}`)}
     />
   );
 }

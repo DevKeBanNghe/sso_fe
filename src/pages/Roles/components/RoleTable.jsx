@@ -1,44 +1,38 @@
 import CTTable from 'components/shared/CTTable';
-import useQueryKeys from 'hooks/useQueryKeys';
-import { deleteRoles, getRoleList } from '../service';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { deleteRoles } from '../service';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
-import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
 import CTTextTruncate from 'components/shared/CTTextTruncate';
+import useRoleList from '../hooks/useRoleList';
+
+const columns = [
+  {
+    title: 'Role Name',
+    width: 50,
+    dataIndex: 'role_name',
+    key: 'role_name',
+    fixed: 'left',
+  },
+  {
+    title: 'Role Description',
+    width: 50,
+    dataIndex: 'role_description',
+    key: 'role_description',
+    render: (value) => <CTTextTruncate>{value}</CTTextTruncate>,
+  },
+];
 
 function RoleTable() {
   const navigate = useNavigate();
-  const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
-  const { id: currentRoleId, currentRootRoute, queryParams, setQueryParams, queryParamsString } = useCurrentPage();
+  const { id: currentRoleId, currentRootRoute, setQueryParams, queryParamsString } = useCurrentPage();
 
-  const columns = [
-    {
-      title: 'Role Name',
-      width: 50,
-      dataIndex: 'role_name',
-      key: 'role_name',
-      fixed: 'left',
-    },
-    {
-      title: 'Group Role',
-      width: 50,
-      dataIndex: 'GroupRole',
-      key: 'GroupRole',
-      render: (value) => value.group_role_name,
-    },
-    {
-      title: 'Role Description',
-      width: 50,
-      dataIndex: 'role_description',
-      key: 'role_description',
-      render: (value) => {
-        return <CTTextTruncate>{value}</CTTextTruncate>;
-      },
-    },
-  ];
+  const {
+    data: { totalItems, itemPerPage, list, page },
+    queryKeyRoleList,
+  } = useRoleList();
 
   const mutationDeleteRoles = useMutation({
     mutationFn: deleteRoles,
@@ -49,7 +43,7 @@ function RoleTable() {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
       await queryClient.fetchQuery({
-        queryKey: [`${keyList}-${queryParams.page}`],
+        queryKey: [queryKeyRoleList],
       });
     },
   });
@@ -57,14 +51,6 @@ function RoleTable() {
   const handleDeleteAll = async (ids = []) => {
     mutationDeleteRoles.mutate({ ids });
   };
-
-  const { data: queryGetRoleListData = {} } = useQuery({
-    queryKey: [`${keyList}-${queryParams.page}`],
-    queryFn: () => getRoleList(queryParams),
-    staleTime: STALE_TIME_GET_LIST,
-  });
-  const { data } = queryGetRoleListData;
-  const { totalItems, itemPerPage, list, page } = data ?? {};
 
   return (
     <CTTable
@@ -78,10 +64,6 @@ function RoleTable() {
       }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
-      onView={({ role_id }) => navigate(`${currentRootRoute}/${role_id}${queryParamsString}`)}
-      onEdit={({ role_id }) => navigate(`${currentRootRoute}/edit/${role_id}${queryParamsString}`)}
-      onCopy={({ role_id }) => navigate(`${currentRootRoute}/copy/${role_id}${queryParamsString}`)}
-      onDelete={({ role_id }) => handleDeleteAll([role_id])}
     />
   );
 }

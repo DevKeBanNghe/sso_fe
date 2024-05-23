@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "prod": "npm run build && npm run preview",
     "i-prod": "npm i --ignore-scripts",
-    "test": "echo 'running test'",
+    "test": "echo testing...",
     "format": "prettier --write .",
     "init-husky": "husky && type husky-prepare\\pre-commit > .husky/pre-commit && type husky-prepare\\commit-msg > .husky/commit-msg",
     "postinstall": "npm run init-husky"
