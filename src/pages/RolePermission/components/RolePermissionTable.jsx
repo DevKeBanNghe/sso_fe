@@ -106,7 +106,8 @@ function RolePermissionTable() {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}></Checkbox>
+                    }}
+                  ></Checkbox>
                 );
               }}
             />
