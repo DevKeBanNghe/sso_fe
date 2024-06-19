@@ -1,49 +1,18 @@
 import CTTable from 'components/shared/CTTable';
 import useQueryKeys from 'hooks/useQueryKeys';
 import { deletePermissions, getPermissionList } from '../service';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
-import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
-const columns = [
-  {
-    title: 'Permission Name',
-    width: 70,
-    dataIndex: 'permission_name',
-    key: 'permission_name',
-    fixed: 'left',
-  },
-  {
-    title: 'Permission Key',
-    width: 70,
-    dataIndex: 'permission_key',
-    key: 'permission_key',
-  },
-  {
-    title: 'Permission Router',
-    width: 70,
-    dataIndex: 'permission_router',
-    key: 'permission_router',
-  },
-  {
-    title: 'Permission Description',
-    width: 70,
-    dataIndex: 'permission_description',
-    key: 'permission_description',
-  },
-];
+import useGetList from 'hooks/useGetList';
+import { columns } from './PermissionColumnTable';
+
 function PermissionTable() {
   const navigate = useNavigate();
   const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
-  const {
-    id: currentPermissionId,
-    currentRootRoute,
-    queryParams,
-    setQueryParams,
-    queryParamsString,
-  } = useCurrentPage();
+  const { id: currentPermissionId, currentRootRoute, queryParams, queryParamsString } = useCurrentPage();
 
   const mutationDeletePermissions = useMutation({
     mutationFn: deletePermissions,
@@ -63,13 +32,9 @@ function PermissionTable() {
     mutationDeletePermissions.mutate({ ids });
   };
 
-  const { data: queryGetPermissionListData = {} } = useQuery({
-    queryKey: [`${keyList}-${queryParams.page}`],
-    queryFn: () => getPermissionList(queryParams),
-    staleTime: STALE_TIME_GET_LIST,
-  });
-  const { data } = queryGetPermissionListData;
-  const { totalItems, itemPerPage, list, page } = data ?? {};
+  const {
+    data: { totalItems, itemPerPage, list, page },
+  } = useGetList({ func: getPermissionList });
 
   return (
     <CTTable
@@ -77,11 +42,8 @@ function PermissionTable() {
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}
-      columns={columns}
-      onChange={({ current: page }) => {
-        setQueryParams((prev) => ({ ...prev, page }));
-      }}
       currentPage={page}
+      columns={columns}
       onGlobalDelete={handleDeleteAll}
     />
   );

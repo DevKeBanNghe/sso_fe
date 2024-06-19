@@ -1,10 +1,10 @@
 import { Card, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'common/utils';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
@@ -20,20 +20,16 @@ import CTIcon from 'components/shared/CTIcon';
 import { getRoleOptions } from 'pages/Roles/service';
 import CTModal from 'components/shared/CTModal';
 import RoleForm from 'pages/Roles/components/RoleForm';
+import usePermissionOptions from 'pages/Permissions/hooks/usePermissionOptions';
+import useGetDetail from 'hooks/useGetDetail';
 
 function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
-  const { keyList, keyDetail } = useQueryKeys();
+  const { keyList } = useQueryKeys();
   const { id: currentWebpageId, isEdit, setQueryParams, isCopy } = useCurrentPage();
   const [isOpenRoleModal, setIsOpenRoleModal] = useState(false);
   const roleFormRef = useRef();
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors: formStateErrors },
-    setFocus,
-  } = (isFormModal ? useForm : useFormContext)();
+  const { control, handleSubmit, reset, setFocus, watch } = (isFormModal ? useForm : useFormContext)();
 
   useImperativeHandle(ref, () => ({
     onSubmit: handleSubmit(onSubmit),
@@ -81,86 +77,85 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
     return transferToOptionSelect({ data, value: 'role_id', label: 'role_name' });
   };
 
-  const formItems = useMemo(
-    () => [
-      {
-        render: () => {
-          return (
-            <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleWebpagesImport}>
-              Import
-            </CTButton>
-          );
-        },
-      },
-      {
-        field: 'webpage_name',
-        rules: {
-          required: 'Please input your new webpage_name!',
-        },
-        render: ({ field }) => {
-          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage name' />;
-        },
-      },
-      {
-        field: 'webpage_url',
-        rules: {
-          required: 'Please input your new webpage_url!',
-        },
-        render: ({ field }) => {
-          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage url' />;
-        },
-      },
-      {
-        field: 'webpage_key',
-        rules: {
-          required: 'Please input your new webpage_key!',
-        },
-        render: ({ field }) => {
-          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Webpage key' />;
-        },
-      },
-      {
-        field: 'role_ids',
-        render: ({ field }) => {
-          return (
-            <Row>
-              <Col span={22}>
-                <CTDebounceSelect
-                  {...field}
-                  mode={'multiple'}
-                  placeholder={'Select roles'}
-                  fetchOptions={handleFetchRoleOptions}
-                />
-              </Col>
-              <Col span={2}>
-                <CTIcon
-                  style={{ marginLeft: '5px', fontSize: '20px', marginTop: '10px' }}
-                  color={'green'}
-                  icon={PlusCircleFilled}
-                  onClick={() => setIsOpenRoleModal(true)}
-                />
-              </Col>
-            </Row>
-          );
-        },
-      },
-      {
-        field: 'webpage_description',
-        render: ({ field }) => {
-          return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Webpage Description' />;
-        },
-      },
-    ],
-    [formStateErrors],
-  );
+  const { fetchOptions } = usePermissionOptions({ params: { role_ids: watch('role_ids')?.join(',') } });
 
-  const { data: queryGetWebpageDetail = {} } = useQuery({
-    queryKey: [keyDetail, currentWebpageId],
-    queryFn: () => getWebpageDetail(currentWebpageId),
-    enabled: currentWebpageId ? true : false,
-  });
-  const { data: dataGetWebpageDetail } = queryGetWebpageDetail;
+  const formItems = [
+    {
+      render: () => {
+        return (
+          <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleWebpagesImport}>
+            Import
+          </CTButton>
+        );
+      },
+    },
+    {
+      field: 'webpage_name',
+      rules: {
+        required: 'Please input your new webpage_name!',
+      },
+      render: ({ field, formState: { errors } }) => {
+        return <CTInput formStateErrors={errors} {...field} placeholder='Webpage name' />;
+      },
+    },
+    {
+      field: 'webpage_url',
+      rules: {
+        required: 'Please input your new webpage_url!',
+      },
+      render: ({ field, formState: { errors } }) => {
+        return <CTInput formStateErrors={errors} {...field} placeholder='Webpage url' />;
+      },
+    },
+    {
+      field: 'webpage_key',
+      rules: {
+        required: 'Please input your new webpage_key!',
+      },
+      render: ({ field, formState: { errors } }) => {
+        return <CTInput formStateErrors={errors} {...field} placeholder='Webpage key' />;
+      },
+    },
+    {
+      field: 'role_ids',
+      render: ({ field }) => {
+        return (
+          <Row>
+            <Col span={22}>
+              <CTDebounceSelect
+                {...field}
+                mode={'multiple'}
+                placeholder={'Select roles'}
+                fetchOptions={handleFetchRoleOptions}
+              />
+            </Col>
+            <Col span={2}>
+              <CTIcon
+                style={{ marginLeft: '5px', fontSize: '20px', marginTop: '10px' }}
+                color={'green'}
+                icon={PlusCircleFilled}
+                onClick={() => setIsOpenRoleModal(true)}
+              />
+            </Col>
+          </Row>
+        );
+      },
+    },
+    {
+      field: 'key_all_permission',
+      render: ({ field }) => {
+        return <CTDebounceSelect {...field} placeholder={'Select key all permission'} fetchOptions={fetchOptions} />;
+      },
+    },
+    {
+      field: 'webpage_description',
+      render: ({ field }) => {
+        return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Webpage Description' />;
+      },
+    },
+  ];
 
+  const { data: dataGetWebpageDetail } = useGetDetail({ func: getWebpageDetail });
   useEffect(() => {
     if (!dataGetWebpageDetail) return () => {};
     setFocus('webpage_url');

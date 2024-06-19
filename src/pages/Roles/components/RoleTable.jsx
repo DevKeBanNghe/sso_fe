@@ -1,38 +1,21 @@
 import CTTable from 'components/shared/CTTable';
-import { deleteRoles } from '../service';
+import { deleteRoles, getRoleList } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
-import CTTextTruncate from 'components/shared/CTTextTruncate';
-import useRoleList from '../hooks/useRoleList';
-
-const columns = [
-  {
-    title: 'Role Name',
-    width: 50,
-    dataIndex: 'role_name',
-    key: 'role_name',
-    fixed: 'left',
-  },
-  {
-    title: 'Role Description',
-    width: 50,
-    dataIndex: 'role_description',
-    key: 'role_description',
-    render: (value) => <CTTextTruncate>{value}</CTTextTruncate>,
-  },
-];
+import useGetList from 'hooks/useGetList';
+import { columns } from './RoleColumnTable';
 
 function RoleTable() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { id: currentRoleId, currentRootRoute, setQueryParams, queryParamsString } = useCurrentPage();
+  const { id: currentRoleId, currentRootRoute, queryParamsString } = useCurrentPage();
 
   const {
     data: { totalItems, itemPerPage, list, page },
-    queryKeyRoleList,
-  } = useRoleList();
+    queryKey: queryKeyRoleList,
+  } = useGetList({ func: getRoleList });
 
   const mutationDeleteRoles = useMutation({
     mutationFn: deleteRoles,
@@ -48,9 +31,7 @@ function RoleTable() {
     },
   });
 
-  const handleDeleteAll = async (ids = []) => {
-    mutationDeleteRoles.mutate({ ids });
-  };
+  const handleDeleteAll = async (ids = []) => mutationDeleteRoles.mutate({ ids });
 
   return (
     <CTTable
@@ -59,9 +40,6 @@ function RoleTable() {
       itemPerPage={itemPerPage}
       rows={list}
       columns={columns}
-      onChange={({ current: page }) => {
-        setQueryParams((prev) => ({ ...prev, page }));
-      }}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
     />

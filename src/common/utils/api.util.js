@@ -20,7 +20,8 @@ instance.interceptors.response.use(
     return { ...data_res, status };
   },
   async ({ response: { data, status } }) => {
-    if (status === HttpStatusCode.Unauthorized) {
+    const { data: dataRes } = data ?? {};
+    if (status === HttpStatusCode.Unauthorized && !dataRes?.isRefresh) {
       const { errors } = await instance.get(`auth/refresh-token`);
       if (errors) throw new Error(errors.toString());
       store.dispatch(getUserInfo());

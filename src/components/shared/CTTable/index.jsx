@@ -3,6 +3,7 @@ import { Button, Col, Row, Table } from 'antd';
 import SearchBar from 'layouts/Header/SearchBar';
 import Actions from './Actions';
 import GlobalActions from './GlobalActions';
+import useCurrentPage from 'hooks/useCurrentPage';
 
 const CTTable = ({
   fixed = 'bottom',
@@ -21,6 +22,7 @@ const CTTable = ({
   ...props
 }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const { setQueryParams } = useCurrentPage({ isPaging: false });
 
   const table_columns = useMemo(() => {
     const isShowActions = actions.length > 0 || isShowDefaultActions;
@@ -123,6 +125,7 @@ const CTTable = ({
           },
           columnWidth: '3%',
         }}
+        onChange={({ current: page }) => setQueryParams((pre) => ({ ...pre, page }))}
         {...props}
       />
     </>

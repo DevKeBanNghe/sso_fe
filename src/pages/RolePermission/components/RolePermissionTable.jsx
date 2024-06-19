@@ -13,7 +13,7 @@ import { toast } from 'common/utils';
 import { useEffect } from 'react';
 function RolePermissionTable() {
   const { keyList } = useQueryKeys();
-  const { queryParams, setQueryParams } = useCurrentPage();
+  const { queryParams } = useCurrentPage();
   const { control, watch, setValue, getValues, reset } = useForm();
 
   const { data: queryGetPermissionListData = {} } = useQuery({
@@ -146,10 +146,6 @@ function RolePermissionTable() {
       itemPerPage={itemPerPage}
       rows={list}
       columns={columns}
-      onChange={({ current: page }) => {
-        setQueryParams((prev) => ({ ...prev, page }));
-      }}
-      pagination={false}
       rowSelection={false}
       currentPage={page}
       isShowDefaultActions={false}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useOutlet } from 'react-router-dom';
 
 import Header from './Header/Header';
@@ -11,7 +11,6 @@ import { LOADING_STATUS } from 'common/consts/constants.const';
 import useAuth from 'hooks/useAuth';
 import useCurrentPage from 'hooks/useCurrentPage';
 const HomePage = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const outlet = useOutlet();
   const navigate = useNavigate();
   const user = useUser();
@@ -34,7 +33,7 @@ const HomePage = () => {
       <FloatButton.BackTop />
       <Layout hasSider>
         <Layout style={{ margin: '0 50px' }}>
-          <Header style={{ background: '#737373' }} collapsed={collapsed} setCollapsed={setCollapsed} />
+          <Header style={{ background: '#737373' }} />
           <Content style={{ margin: '10px 0', overflow: 'initial' }}>
             <div
               style={{

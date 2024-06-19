@@ -16,7 +16,13 @@ export default function SocialsSignIn() {
         redirectTo(`${API_URL}/auth/google?webpage_key=${webpage_key}`);
       },
     },
-    { icon: FacebookFilled, color: '#0866ff' },
+    {
+      icon: FacebookFilled,
+      color: '#0866ff',
+      onClick: () => {
+        redirectTo(`${API_URL}/auth/facebook?webpage_key=${webpage_key}`);
+      },
+    },
     {
       icon: GithubFilled,
       color: '#1f2328',

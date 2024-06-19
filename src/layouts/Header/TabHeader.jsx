@@ -13,9 +13,6 @@ const items = routers
 const TabHeader = () => {
   const { currentRootRoute } = useCurrentPage({ isPaging: false });
   const navigate = useNavigate();
-  const onChange = (key) => {
-    navigate(key);
-  };
-  return <Tabs defaultActiveKey={currentRootRoute} items={items} onChange={onChange} />;
+  return <Tabs defaultActiveKey={currentRootRoute} items={items} onChange={(key) => navigate(key)} />;
 };
 export default TabHeader;

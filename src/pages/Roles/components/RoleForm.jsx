@@ -1,34 +1,30 @@
 import { Card, Input } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'common/utils';
-import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createRole, getRoleDetail, getRoleOptions, updateRole } from '../service';
-import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
+import { getDataSelect } from 'common/utils/select.util';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createRole, getRoleDetail, updateRole } from '../service';
+import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, ImportOutlined } from '@ant-design/icons';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
 import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
+import useGetDetail from 'hooks/useGetDetail';
+import useRoleOptions from '../hooks/useRoleOptions';
 
 function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
-  const { keyList, keyDetail } = useQueryKeys();
+  const { keyList } = useQueryKeys();
   const { id: currentRoleId, isEdit, setQueryParams, isCopy } = useCurrentPage();
 
   useImperativeHandle(ref, () => ({
     onSubmit: handleSubmit(onSubmit),
   }));
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors: formStateErrors },
-    setFocus,
-  } = (isFormModal ? useForm : useFormContext)();
+  const { control, handleSubmit, reset, setFocus } = (isFormModal ? useForm : useFormContext)();
   const onSubmit = async (values) => {
     if (isCopy) delete values.role_id;
     const payload = { ...values, role_id: getDataSelect(values, 'role_id') };
@@ -38,13 +34,8 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
   };
 
   const handleRolesImport = () => {};
-  const handleFetchRoleOptions = async (value) => {
-    const { data } = await queryClient.fetchQuery({
-      queryKey: ['role_options'],
-      queryFn: () => getRoleOptions({ role_name: value, limit: SELECT_LIMIT_OPTIONS }),
-    });
-    return transferToOptionSelect({ data, value: 'role_id', label: 'role_name' });
-  };
+  const { fetchOptions: handleFetchRoleOptions } = useRoleOptions();
+
   const queryClient = useQueryClient();
   const handleSubmitSuccess = ({ errors }) => {
     if (errors) return toast.error(errors);
@@ -64,56 +55,40 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
     mutationFn: updateRole,
     onSuccess: handleSubmitSuccess,
   });
-  const formItems = useMemo(
-    () => [
-      {
-        render: () => {
-          return (
-            <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleRolesImport}>
-              Import
-            </CTButton>
-          );
-        },
+  const formItems = [
+    {
+      render: () => {
+        return (
+          <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleRolesImport}>
+            Import
+          </CTButton>
+        );
       },
-      {
-        field: 'role_name',
-        rules: {
-          required: 'Please input your new role_name!',
-        },
-        render: ({ field }) => {
-          return <CTInput formStateErrors={formStateErrors} {...field} placeholder='Role Name' />;
-        },
+    },
+    {
+      field: 'role_name',
+      rules: {
+        required: 'Please input your new role_name!',
       },
-      {
-        field: 'role_parent_id',
-        render: ({ field }) => {
-          return (
-            <CTDebounceSelect
-              {...field}
-              formStateErrors={formStateErrors}
-              placeholder={'Select role parent'}
-              fetchOptions={handleFetchRoleOptions}
-            />
-          );
-        },
+      render: ({ field, formState: { errors } }) => {
+        return <CTInput formStateErrors={errors} {...field} placeholder='Role Name' />;
       },
-      {
-        field: 'role_description',
-        render: ({ field }) => {
-          return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Role Description' />;
-        },
+    },
+    {
+      field: 'role_parent_id',
+      render: ({ field }) => {
+        return <CTDebounceSelect {...field} placeholder={'Select role parent'} fetchOptions={handleFetchRoleOptions} />;
       },
-    ],
-    [formStateErrors],
-  );
+    },
+    {
+      field: 'role_description',
+      render: ({ field }) => {
+        return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Role Description' />;
+      },
+    },
+  ];
 
-  const { data: queryGetRoleDetail = {} } = useQuery({
-    queryKey: [keyDetail, currentRoleId],
-    queryFn: () => getRoleDetail(currentRoleId),
-    enabled: currentRoleId ? true : false,
-  });
-  const { data: dataGetRoleDetail } = queryGetRoleDetail;
-
+  const { data: dataGetRoleDetail } = useGetDetail({ func: getRoleDetail });
   useEffect(() => {
     if (!dataGetRoleDetail) return () => {};
     setFocus('role_name');
