@@ -1,6 +1,6 @@
-import { postApi } from 'common/utils/index';
+import { post } from 'common/utils/index';
 
 const prefix = `/auth`;
-const resetPassword = (data = {}) => postApi(`${prefix}/reset-password`, data);
+const resetPassword = (data = {}) => post(`${prefix}/reset-password`, data);
 
 export { resetPassword };

@@ -1,5 +1,7 @@
 import axios, { HttpStatusCode } from 'axios';
 import { getUserInfo } from 'common/reducers/user.action';
+import signInRouters from 'pages/SignIn/route';
+import signUpRouters from 'pages/SignUp/route';
 import { store } from 'reduxApp/store';
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,8 +22,11 @@ instance.interceptors.response.use(
     return { ...data_res, status };
   },
   async ({ response: { data, status } }) => {
-    const { data: dataRes } = data ?? {};
-    if (status === HttpStatusCode.Unauthorized && !dataRes?.isRefresh) {
+    const isRouteRefreshToken = [...signInRouters, ...signUpRouters].some(
+      (route) => route.path !== window.location.pathname,
+    );
+    const isRefreshToken = status === HttpStatusCode.Unauthorized && isRouteRefreshToken;
+    if (isRefreshToken) {
       const { errors } = await instance.get(`auth/refresh-token`);
       if (errors) throw new Error(errors.toString());
       store.dispatch(getUserInfo());
@@ -30,6 +35,6 @@ instance.interceptors.response.use(
   },
 );
 
-const { get: getApi, patch: patchApi, post: postApi, put: putApi, delete: deleteApi } = instance;
+const { get, patch, post, put, delete: _delete } = instance;
 
-export { getApi, patchApi, postApi, putApi, deleteApi };
+export { get, patch, post, put, _delete };

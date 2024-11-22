@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getApi } from 'common/utils';
+import { get } from 'common/utils';
 
 export const getUserInfo = createAsyncThunk('users/fetchByIdStatus', async () => {
-  const { data, errors } = await getApi('/users/info');
+  const { data, errors } = await get('/users/info');
   if (errors) throw new Error(errors.toString());
   return data;
 });
