@@ -1,7 +1,6 @@
 import { Input, Button, Divider, Flex, Image, DatePicker } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
-const { Link } = Typography;
 import Logo from 'images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
@@ -13,6 +12,7 @@ import SocialsSignUp from './SocialsSignUp';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
 import { redirectTo } from 'common/utils/common.util';
+const { Link } = Typography;
 export default function SignUpForm() {
   const navigate = useNavigate();
   const { control, handleSubmit, watch } = useForm();
@@ -21,7 +21,9 @@ export default function SignUpForm() {
     mutationFn: signUp,
     onSuccess: ({ data, errors }) => {
       if (errors) return toast.error(errors);
-      if (data.webpage_url) redirectTo(data.webpage_url);
+      toast.success('Sign up success');
+      if (data.webpage_url) return redirectTo(data.webpage_url);
+      navigate('/sign-in');
     },
   });
 
