@@ -13,10 +13,7 @@ export const columns = [
     width: 70,
     dataIndex: 'GroupRole',
     key: 'GroupRole',
-    render: (value = []) => {
-      if (value.length === 0) return <></>;
-      return <CTList list={value.map((item) => item.group_role_name)} />;
-    },
+    render: (value = []) => <CTList list={value.map((item) => item.group_role_name)} />,
   },
   {
     title: 'Webpage Description',

@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import CTForm from 'components/shared/CTForm';
 import { resetPassword } from '../service';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import useLocalStorage from 'hooks/useLocalStorage';
-import { CODE_RESET_KEY } from 'common/consts';
+import { CODE_RESET_KEY } from 'common/consts/local-storage.const';
 import { delay } from 'lodash';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
@@ -64,8 +64,7 @@ export default function ResetPassword() {
               //   message:
               //     'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
               // },
-            ]}
-          >
+            ]}>
             <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='New Password' />
           </Form.Item>
         );
@@ -88,8 +87,7 @@ export default function ResetPassword() {
                   return Promise.reject(new Error('Confirm password not match!'));
                 },
               }),
-            ]}
-          >
+            ]}>
             <Input.Password
               disabled={!watch('password')}
               {...field}
@@ -111,8 +109,7 @@ export default function ResetPassword() {
             type='primary'
             htmlType='submit'
             className='login-form-button'
-            style={{ width: '100%' }}
-          >
+            style={{ width: '100%' }}>
             Confirm
           </Button>
         </Form.Item>

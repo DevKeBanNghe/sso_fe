@@ -9,7 +9,7 @@ import { getRoleOptions } from 'pages/Roles/service';
 import { getPermissionList } from 'pages/Permissions/service';
 import { getRolePermissionList, updateRolePermission } from '../service';
 import { isArray } from 'lodash';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { useEffect } from 'react';
 function RolePermissionTable() {
   const { keyList } = useQueryKeys();
@@ -106,8 +106,7 @@ function RolePermissionTable() {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}
-                  ></Checkbox>
+                    }}></Checkbox>
                 );
               }}
             />

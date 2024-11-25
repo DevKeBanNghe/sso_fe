@@ -1,6 +1,6 @@
-import React from 'react';
+import { lazy } from 'react';
 import { ROOT_ROUTE } from './const';
-const Permissions = React.lazy(() => import('./pages'));
+const Permissions = lazy(() => import('./pages'));
 
 const permissionsRouters = [
   {

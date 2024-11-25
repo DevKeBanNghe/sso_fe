@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import CTForm from 'components/shared/CTForm';
 import { signUp } from '../service';
-import { antdDateToStringDate, toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
+import { antdDateToStringDate } from 'common/utils/date.util';
 import PhoneNumberInput from 'components/shared/PhoneNumberInput';
 import SocialsSignUp from './SocialsSignUp';
 import { useMutation } from '@tanstack/react-query';
@@ -23,7 +24,7 @@ export default function SignUpForm() {
       if (errors) return toast.error(errors);
       toast.success('Sign up success');
       if (data.webpage_url) return redirectTo(data.webpage_url);
-      navigate('/sign-in');
+      navigate('/');
     },
   });
 

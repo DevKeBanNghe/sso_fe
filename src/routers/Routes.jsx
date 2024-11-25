@@ -16,38 +16,31 @@ const otherRouters = [
   },
 ];
 
-const Routes = (_routers = routers, routeParent) => {
-  const routesAccess = otherRouters.concat(_routers);
+const OutsideRoutes = () =>
+  outsideRouters.map((route) => (
+    <Route
+      key={route.path}
+      path={route.path}
+      exact={route.exact ?? true}
+      errorElement={Errors}
+      Component={route.component}
+    />
+  ));
 
-  return (
-    <>
-      {outsideRouters.map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          exact={route.exact ?? true}
-          errorElement={Errors}
-          Component={route.component}
-        />
-      ))}
-
-      <Route key={'HomePage'} path={'/'} exact={true} errorElement={Errors} Component={HomePage}>
-        {routesAccess.map((route) => (
-          <Route
-            key={route.path}
-            index={route.index}
-            path={`${routeParent?.path ?? ''}${route.path}`}
-            exact={route.exact ?? true}
-            loader={route.loader}
-            errorElement={Errors}
-            Component={route.component}
-          >
-            {route.children && route.children.length && Routes(route.children, route)}
-          </Route>
-        ))}
+const Routes = (_routers = [...routers, ...otherRouters], routeParent) => (
+  <Route key={'HomePage'} path={'/'} exact={true} errorElement={Errors} Component={HomePage}>
+    {_routers.map((route) => (
+      <Route
+        key={route.path}
+        index={route.index}
+        path={`${routeParent?.path ?? ''}${route.path}`}
+        exact={route.exact ?? true}
+        loader={route.loader}
+        errorElement={Errors}
+        Component={route.component}>
+        {route.children && route.children.length && Routes(route.children, route)}
       </Route>
-    </>
-  );
-};
-
-export default Routes;
+    ))}
+  </Route>
+);
+export { Routes, OutsideRoutes };

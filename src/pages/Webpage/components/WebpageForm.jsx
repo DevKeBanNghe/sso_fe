@@ -2,7 +2,7 @@ import { Card, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
@@ -178,8 +178,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}
-      >
+        onOk={() => roleFormRef.current.onSubmit()}>
         <RoleForm ref={roleFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

@@ -8,11 +8,9 @@
     "build": "vite build --mode production",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --fix",
     "preview": "vite preview",
-    "prod": "npm run build && npm run preview",
-    "i-prod": "npm i --ignore-scripts",
     "test": "echo testing...",
     "format": "prettier --write .",
-    "init-husky": "(if exist .husky rmdir /s /q .husky) && husky && cp initial/husky/* .husky/",
+    "init-husky": "husky && cp initial/husky/* .husky/",
     "postinstall": "npm run init-husky"
   },
   "dependencies": {

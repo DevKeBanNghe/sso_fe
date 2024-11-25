@@ -1,4 +1,4 @@
-import { get, put } from 'common/utils/index';
+import { get, put } from 'common/utils/api.util';
 import { ROOT_ROUTE } from './const';
 
 const updateRolePermission = (data = {}) => put(`${ROOT_ROUTE}`, data);

@@ -1,5 +1,6 @@
-import React from 'react';
-const ResetPassword = React.lazy(() => import('./pages'));
+import { lazy } from 'react';
+
+const ResetPassword = lazy(() => import('./pages'));
 
 const resetPasswordRouters = [
   {

@@ -1,6 +1,6 @@
-import React from 'react';
+import { lazy } from 'react';
 import { ROOT_ROUTE } from './const';
-const Users = React.lazy(() => import('./pages'));
+const Users = lazy(() => import('./pages'));
 
 const usersRouters = [
   {

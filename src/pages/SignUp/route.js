@@ -1,5 +1,6 @@
-import React from 'react';
-const SignUp = React.lazy(() => import('./pages'));
+import { lazy } from 'react';
+
+const SignUp = lazy(() => import('./pages'));
 
 const signUpRouters = [
   {

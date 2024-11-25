@@ -1,7 +1,7 @@
 import CTTable from 'components/shared/CTTable';
 import { deleteUsers, getUserList } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetList from 'hooks/useGetList';

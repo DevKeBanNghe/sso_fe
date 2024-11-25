@@ -2,7 +2,7 @@ import { Row, Col } from 'antd';
 import { FormProvider, useForm } from 'react-hook-form';
 import UserTable from '../components/UserTable';
 import UserForm from '../components/UserForm';
-import { genUUID } from 'common/utils';
+import { genUUID } from 'common/utils/string.util';
 
 export default function Users() {
   const methods = useForm({

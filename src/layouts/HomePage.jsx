@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
 import { useNavigate, useOutlet } from 'react-router-dom';
-
 import Header from './Header/Header';
 import Footer from './Footer';
 import { Layout } from 'antd';
-const { Content } = Layout;
 import { FloatButton } from 'antd';
 import useUser from 'hooks/useUser';
-import { LOADING_STATUS } from 'common/consts/constants.const';
 import useAuth from 'hooks/useAuth';
 import useCurrentPage from 'hooks/useCurrentPage';
+import { useEffect } from 'react';
+import { LOADING_STATUS } from 'common/consts/constants.const';
+const { Content } = Layout;
+
 const HomePage = () => {
   const outlet = useOutlet();
   const navigate = useNavigate();
@@ -39,8 +39,7 @@ const HomePage = () => {
               style={{
                 padding: 12,
                 minHeight: '100vh',
-              }}
-            >
+              }}>
               {outlet}
             </div>
           </Content>

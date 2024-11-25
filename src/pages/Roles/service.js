@@ -1,4 +1,4 @@
-import { _delete, get, post, put } from 'common/utils/index';
+import { _delete, get, post, put } from 'common/utils/api.util';
 import { ROOT_ROUTE } from './const';
 
 const createRole = (data = {}) => post(`${ROOT_ROUTE}`, data);

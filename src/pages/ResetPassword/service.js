@@ -1,4 +1,4 @@
-import { post } from 'common/utils/index';
+import { post } from 'common/utils/api.util';
 
 const prefix = `/auth`;
 const resetPassword = (data = {}) => post(`${prefix}/reset-password`, data);

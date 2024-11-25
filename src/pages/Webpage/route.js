@@ -1,6 +1,6 @@
-import React from 'react';
+import { lazy } from 'react';
 import { ROOT_ROUTE } from './const';
-const Webpages = React.lazy(() => import('./pages'));
+const Webpages = lazy(() => import('./pages'));
 
 const webpagesRouters = [
   {

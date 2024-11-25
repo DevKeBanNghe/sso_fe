@@ -6,7 +6,7 @@ import Logo from 'images/logo.png';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import SocialsSignIn from './SocialsSignIn';
 import { signIn } from '../service';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
 import { redirectTo } from 'common/utils/common.util';

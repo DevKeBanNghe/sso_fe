@@ -1,7 +1,7 @@
 import CTTable from 'components/shared/CTTable';
 import { deleteRoles, getRoleList } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetList from 'hooks/useGetList';
@@ -12,10 +12,8 @@ function RoleTable() {
   const queryClient = useQueryClient();
   const { id: currentRoleId, currentRootRoute, queryParamsString } = useCurrentPage();
 
-  const {
-    data: { totalItems, itemPerPage, list, page },
-    queryKey: queryKeyRoleList,
-  } = useGetList({ func: getRoleList });
+  const { data, queryKey: queryKeyRoleList } = useGetList({ func: getRoleList });
+  const { totalItems, itemPerPage, list, page } = data ?? {};
 
   const mutationDeleteRoles = useMutation({
     mutationFn: deleteRoles,

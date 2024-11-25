@@ -1,6 +1,6 @@
 import { Alert, Button, Col, Row, Space } from 'antd';
-import { CODE_RESET_KEY } from 'common/consts';
-import { toast } from 'common/utils';
+import { CODE_RESET_KEY } from 'common/consts/local-storage.const';
+import { toast } from 'common/utils/toast.util';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useEffect, useRef, useState } from 'react';
 import { forgotPassword } from '../service';

@@ -1,6 +1,7 @@
-import React from 'react';
-const ForgotPassword = React.lazy(() => import('./pages'));
-const NotificationReset = React.lazy(() => import('./pages/NotificationReset'));
+import { lazy } from 'react';
+
+const ForgotPassword = lazy(() => import('./pages'));
+const NotificationReset = lazy(() => import('./pages/NotificationReset'));
 
 const forgotPasswordRouters = [
   {

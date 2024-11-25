@@ -6,7 +6,8 @@ import useUser from 'hooks/useUser';
 import { UserOutlined } from '@ant-design/icons';
 import CTAvartar from 'components/shared/CTAvartar';
 import CTDropdown from 'components/shared/CTDropdown';
-import { get, toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
+import { logout } from 'pages/SignIn/service';
 const { Link } = Typography;
 
 const Header = () => {
@@ -14,7 +15,7 @@ const Header = () => {
   const user = useUser();
 
   const handleLogout = async () => {
-    await get(`/auth/logout`);
+    await logout();
     toast.success('Logout successfully');
     navigate('/sign-in');
   };

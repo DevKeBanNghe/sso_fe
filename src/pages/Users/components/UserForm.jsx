@@ -4,7 +4,8 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import CTModal from 'components/shared/CTModal';
 import { useForm, useFormContext } from 'react-hook-form';
 import { getRoleOptions } from 'pages/Roles/service';
-import { genUUID, toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
+import { genUUID } from 'common/utils/string.util';
 import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createUser, getUserDetail, updateUser } from '../service';
@@ -145,8 +146,7 @@ function UserFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
         open={isOpenRoleModal}
         title='Group User add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => groupUserFormRef.current.onSubmit()}
-      >
+        onOk={() => groupUserFormRef.current.onSubmit()}>
         <RoleForm ref={groupUserFormRef} isShowDefaultActions={false} />
       </CTModal>
     </>

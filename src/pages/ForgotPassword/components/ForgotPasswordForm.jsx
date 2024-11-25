@@ -4,10 +4,10 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from 'images/logo.png';
 import useLocalStorage from 'hooks/useLocalStorage';
-import { CODE_RESET_KEY } from 'common/consts';
+import { CODE_RESET_KEY } from 'common/consts/local-storage.const';
 import { UserOutlined } from '@ant-design/icons';
 import { forgotPassword } from '../service';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
 import { delay } from 'lodash';
@@ -44,8 +44,7 @@ export default function ForgotPasswordForm() {
           type='primary'
           htmlType='submit'
           className='login-form-button'
-          style={{ width: '100%' }}
-        >
+          style={{ width: '100%' }}>
           Send
         </Button>
       ),

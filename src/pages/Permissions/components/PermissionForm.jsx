@@ -2,7 +2,7 @@ import { Card, Input } from 'antd';
 import CTForm from 'components/shared/CTForm';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { toast } from 'common/utils';
+import { toast } from 'common/utils/toast.util';
 import { getDataSelect } from 'common/utils/select.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPermission, getPermissionDetail, updatePermission } from '../service';
