@@ -4,56 +4,77 @@ import { useMemo } from 'react';
 import { Controller } from 'react-hook-form';
 import { useNavigate, useResolvedPath } from 'react-router-dom';
 import CheckPermission from '../CheckPermission';
+import { isEmpty, isFunction, isString } from 'lodash';
+import { replaceParamsTemplate } from 'common/templates/helpers/common.helper';
+import { getPlaceholderDefault } from 'common/utils/component.util';
 
 export default function CTForm({
   name = 'form-template',
   global_control,
   items = [],
   onSubmit,
-  actions = [],
-  isShowDefaultActions = true,
-  permission_keys_default_actions = [],
+  actions: initActions = [],
+  isShowDefaultAction = true,
+  permissionKeysDefaultAction = [],
   ...props
 }) {
   const navigate = useNavigate();
   const { pathname } = useResolvedPath();
-  const { id, isEdit, isView, queryParamsString } = useCurrentPage({ isPaging: false });
+  const { id, isEdit, isView, queryParamsString, currentRoute } = useCurrentPage({ isPaging: false });
 
-  const buttonSubmitProps = useMemo(() => {
-    if (!isShowDefaultActions) return {};
-    const btnProps = {
+  const actions = useMemo(() => {
+    if (!isShowDefaultAction) return initActions;
+    let defaultAction = {
       type: 'submit',
       content: id && isEdit ? 'Update' : 'Create',
     };
     if (isView) {
-      btnProps.type = 'button';
-      btnProps.content = 'Edit';
-      btnProps.disabled = false;
-      btnProps.style = {
-        backgroundColor: '#cb8d00',
-      };
-      btnProps.onClick = (e) => {
-        e.preventDefault();
-        navigate(pathname.replace(id, `edit/${id}${queryParamsString}`));
+      defaultAction = {
+        ...defaultAction,
+        type: 'button',
+        content: 'Edit',
+        disabled: false,
+        style: { backgroundColor: '#cb8d00' },
+        onClick: (e) => {
+          e.preventDefault();
+          navigate(pathname.replace(id, `edit/${id}${queryParamsString}`));
+        },
       };
     }
-    return btnProps;
-  }, [isView, id]);
+    return [defaultAction, ...initActions];
+  }, [currentRoute]);
 
-  if (isShowDefaultActions) actions.unshift(buttonSubmitProps);
+  const permissionKeysDefaultActionValue = useMemo(() => {
+    const data = permissionKeysDefaultAction.find((item) => {
+      if (isView || isEdit) return item.type === 'update';
+      return item.type === 'create';
+    });
+    if (isEmpty(data)) return [];
+    return data.permission_keys;
+  }, [actions, permissionKeysDefaultAction]);
 
   return (
     <Form disabled={isView} name={name} initialValues={{ remember: true }} onFinish={onSubmit} {...props}>
       {items.map((item, index) => {
-        if (!item.render) return;
-        const key = item.key ?? `form_item_${index}`;
+        const { key: keyItem, field, control, render, ...propsItem } = item;
+        if (!isFunction(render)) return;
+        const key = keyItem ?? `form_item_${index}`;
+        const requiredRule = propsItem.rules?.required;
+        if (requiredRule && isString(requiredRule)) {
+          propsItem.rules.required = replaceParamsTemplate({
+            template: requiredRule,
+            params: {
+              field: getPlaceholderDefault(field),
+            },
+          });
+        }
         return item.field ? (
           <Form.Item key={key} name={item.field}>
             <Controller
-              render={(props) => item.render({ ...props, index })}
-              control={item.control ?? global_control}
-              name={item.field}
-              rules={item.rules}
+              render={(props) => render({ ...props, ...propsItem, index })}
+              control={control ?? global_control}
+              name={field}
+              {...propsItem}
             />
           </Form.Item>
         ) : (
@@ -64,7 +85,7 @@ export default function CTForm({
       })}
 
       {actions.map(({ style = {}, type: htmlType, ...action }, index) => (
-        <CheckPermission key={`actions-${name}-${index}`} permission_keys={permission_keys_default_actions}>
+        <CheckPermission key={`actions-${name}-${index}`} permission_keys={permissionKeysDefaultActionValue}>
           <Form.Item>
             <Button
               disabled={action.disabled ?? isView}

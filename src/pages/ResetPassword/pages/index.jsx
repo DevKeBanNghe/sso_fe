@@ -90,13 +90,7 @@ export default function ResetPassword() {
               }),
             ]}
           >
-            <Input.Password
-              disabled={!watch('password')}
-              {...field}
-              size='large'
-              prefix={<LockOutlined />}
-              placeholder='Confirm Password'
-            />
+            <Input.Password disabled={!watch('password')} {...field} size='large' prefix={<LockOutlined />} />
             {errors && errors.confirm_password?.message}
           </Form.Item>
         );
@@ -128,7 +122,7 @@ export default function ResetPassword() {
           items={items}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultActions={false}
+          isShowDefaultAction={false}
         />
       </Col>
     </Row>

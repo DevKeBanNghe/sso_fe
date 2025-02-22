@@ -1,9 +1,9 @@
 import { Card, Col, Input, Row } from 'antd';
 import CTForm from 'components/shared/CTForm';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { useForm, useFormContext } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'common/utils/toast.util';
-import { getDataSelect, transferToOptionSelect } from 'common/utils/select.util';
+import { transferToOptionSelect } from 'common/utils/select.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
@@ -13,8 +13,6 @@ import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { PERMISSIONS_KEY_MUTATION } from '../const';
-import { upperCase } from 'lodash';
-import useGenValueForm from 'hooks/useGenValueForm';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
 import CTIcon from 'components/shared/CTIcon';
 import { getRoleOptions } from 'pages/Roles/service';
@@ -22,14 +20,20 @@ import CTModal from 'components/shared/CTModal';
 import RoleForm from 'pages/Roles/components/RoleForm';
 import usePermissionOptions from 'pages/Permissions/hooks/usePermissionOptions';
 import useGetDetail from 'hooks/useGetDetail';
+import { genUUID } from 'common/utils/string.util';
+import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 
-function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
+function WebpageFormRef(props, ref) {
   const { keyList } = useQueryKeys();
-  const { id: currentWebpageId, isEdit, setQueryParams, isCopy } = useCurrentPage();
+  const { id: currentWebpageId, isEdit, setQueryParams, isCopy, isView } = useCurrentPage();
   const [isOpenRoleModal, setIsOpenRoleModal] = useState(false);
   const roleFormRef = useRef();
 
-  const { control, handleSubmit, reset, setFocus, watch } = (isFormModal ? useForm : useFormContext)();
+  const { control, handleSubmit, reset, setFocus, watch } = useForm({
+    defaultValues: {
+      webpage_key: genUUID(),
+    },
+  });
 
   useImperativeHandle(ref, () => ({
     onSubmit: handleSubmit(onSubmit),
@@ -37,9 +41,9 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
 
   const onSubmit = async (values) => {
     if (isCopy) delete values.webpage_id;
-    const payload = { ...values, group_webpage_id: getDataSelect(values, 'group_webpage_id') };
+    const payload = { ...values };
     currentWebpageId && isEdit
-      ? mutationUpdateWebpages.mutate({ ...payload, webpage_id: parseInt(currentWebpageId) })
+      ? mutationUpdateWebpages.mutate({ ...payload, webpage_id: currentWebpageId })
       : mutationCreateWebpages.mutate(payload);
   };
 
@@ -61,12 +65,6 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
   const mutationUpdateWebpages = useMutation({
     mutationFn: updateWebpage,
     onSuccess: handleSubmitSuccess,
-  });
-
-  useGenValueForm({
-    field_name: 'webpage_key',
-    format: (values) => `WP_${upperCase(values[0])}`,
-    keys_dependency: ['webpage_name'],
   });
 
   const handleFetchRoleOptions = async (value) => {
@@ -92,28 +90,28 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
     {
       field: 'webpage_name',
       rules: {
-        required: 'Please input your new webpage_name!',
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-      render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Webpage name' />;
+      render: ({ field, formState: { errors }, rules }) => {
+        return <CTInput formStateErrors={errors} rules={rules} {...field} />;
       },
     },
     {
       field: 'webpage_url',
       rules: {
-        required: 'Please input your new webpage_url!',
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-      render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Webpage url' />;
+      render: ({ field, formState: { errors }, rules }) => {
+        return <CTInput formStateErrors={errors} rules={rules} {...field} />;
       },
     },
     {
       field: 'webpage_key',
       rules: {
-        required: 'Please input your new webpage_key!',
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-      render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Webpage key' />;
+      render: ({ field, formState: { errors }, rules }) => {
+        return <CTInput formStateErrors={errors} rules={rules} {...field} />;
       },
     },
     {
@@ -134,7 +132,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
                 style={{ marginLeft: '5px', fontSize: '20px', marginTop: '10px' }}
                 color={'green'}
                 icon={PlusCircleFilled}
-                onClick={() => setIsOpenRoleModal(true)}
+                onClick={() => setIsOpenRoleModal(isView ? false : true)}
               />
             </Col>
           </Row>
@@ -142,15 +140,9 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
       },
     },
     {
-      field: 'key_all_permission',
-      render: ({ field }) => {
-        return <CTDebounceSelect {...field} placeholder={'Select key all permission'} fetchOptions={fetchOptions} />;
-      },
-    },
-    {
       field: 'webpage_description',
       render: ({ field }) => {
-        return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Webpage Description' />;
+        return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} />;
       },
     },
   ];
@@ -159,6 +151,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
   useEffect(() => {
     if (!dataGetWebpageDetail) return () => {};
     setFocus('webpage_url');
+    if (isCopy) delete dataGetWebpageDetail.webpage_key;
     reset(dataGetWebpageDetail);
   }, [dataGetWebpageDetail]);
 
@@ -170,7 +163,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
           items={formItems}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultActions={isShowDefaultActions}
+          isShowDefaultAction={true}
           permission_keys_default_actions={PERMISSIONS_KEY_MUTATION}
         />
       </Card>
@@ -180,7 +173,7 @@ function WebpageFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefa
         onCancel={() => setIsOpenRoleModal(false)}
         onOk={() => roleFormRef.current.onSubmit()}
       >
-        <RoleForm ref={roleFormRef} isShowDefaultActions={false} />
+        <RoleForm ref={roleFormRef} isModal={true} />
       </CTModal>
     </>
   );

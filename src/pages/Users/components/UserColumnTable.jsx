@@ -1,27 +1,21 @@
-import CTTextTruncate from 'components/shared/CTTextTruncate';
+import CTList from 'components/shared/CTList';
 
 export const columns = [
   {
-    title: 'User Name',
-    width: 50,
-    dataIndex: 'user_name',
-    key: 'user_name',
-    fixed: 'left',
-  },
-  // {
-  //   title: 'Role',
-  //   width: 50,
-  //   dataIndex: 'Role',
-  //   key: 'Role',
-  //   render: (value) => value.role_name,
-  // },
-  {
-    title: 'User Description',
-    width: 50,
-    dataIndex: 'user_description',
-    key: 'user_description',
-    render: (value) => {
-      return <CTTextTruncate>{value}</CTTextTruncate>;
+    title: 'Roles',
+    dataIndex: 'roles',
+    key: 'roles',
+    render: (value = []) => {
+      if (value.length === 0) return <></>;
+      return (
+        <CTList
+          list={value.map((item) => (
+            <span key={item.role_id} style={{ width: '100%' }}>
+              {item.role_name}
+            </span>
+          ))}
+        />
+      );
     },
   },
 ];

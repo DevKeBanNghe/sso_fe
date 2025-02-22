@@ -11,7 +11,7 @@ const Breadcrumb = ({ separator = '>' } = {}) => {
   const breadcrumbs = useMemo(() => {
     const breadcrumbs = [];
     for (const route of routers) {
-      if (!(pathname.includes(route.path) && (route.is_breadcrumb ?? true ? true : route.is_breadcrumb))) continue;
+      if (!(pathname.includes(route.path) && ((route.is_breadcrumb ?? true) ? true : route.is_breadcrumb))) continue;
       breadcrumbs.push({
         title: route.name ?? genRouteNameDefault(route.path),
         href: '',

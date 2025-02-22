@@ -19,8 +19,8 @@
       "hooks": ["./src/hooks"],
       "layouts": ["./src/layouts"],
       "images": ["./src/images"],
-      "common": ["./src/common"],
-    },
+      "common": ["./src/common"]
+    }
   },
-  "exclude": ["**/node_modules/*", ".git", ".npm", "**/.cache/*", "**/.tmp/*", "**/dist/*", "**/build/*"],
+  "exclude": ["**/node_modules/*", ".git", ".npm", "**/.cache/*", "**/.tmp/*", "**/dist/*", "**/build/*"]
 }

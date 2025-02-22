@@ -1,6 +1,7 @@
 import { Tabs } from 'antd';
 import { genRouteNameDefault } from 'common/utils/route.util';
 import useCurrentPage from 'hooks/useCurrentPage';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { routers } from 'routers';
 
@@ -12,7 +13,13 @@ const items = routers
   }));
 const TabHeader = () => {
   const { currentRootRoute } = useCurrentPage({ isPaging: false });
+  const [defaultKeyTab, setDefaultKeyTab] = useState();
   const navigate = useNavigate();
-  return <Tabs defaultActiveKey={currentRootRoute} items={items} onChange={(key) => navigate(key)} />;
+
+  useEffect(() => {
+    setDefaultKeyTab(currentRootRoute);
+  }, [currentRootRoute]);
+
+  return <Tabs activeKey={defaultKeyTab} items={items} onChange={(key) => navigate(key)} />;
 };
 export default TabHeader;

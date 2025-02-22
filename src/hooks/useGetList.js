@@ -6,9 +6,9 @@ import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
 export default function useGetList({ func = async () => {} }) {
   const { keyList } = useQueryKeys();
   const { queryParams } = useCurrentPage();
-  const queryKey = `${keyList}-${queryParams.page}`;
+  const queryKey = [keyList, queryParams];
   const { data = {}, ...query } = useQuery({
-    queryKey: [queryKey],
+    queryKey,
     queryFn: async () => {
       const { data } = await func(queryParams);
       return data;

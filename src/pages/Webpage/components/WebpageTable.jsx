@@ -19,7 +19,7 @@ export default function WebpageTable() {
     onSuccess: async ({ errors }, { ids }) => {
       if (errors) return toast.error(errors);
       toast.success('Delete success');
-      if (ids.includes(parseInt(currentWebpageId))) {
+      if (ids.includes(currentWebpageId)) {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
       await queryClient.fetchQuery({

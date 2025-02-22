@@ -5,7 +5,7 @@ const ResetPassword = lazy(() => import('./pages'));
 const resetPasswordRouters = [
   {
     path: '/reset-password',
-    permission: 'SYS_ANNOUNCE_VIEW',
+    permission: 'SYS_ALL',
     component: ResetPassword,
   },
 ];

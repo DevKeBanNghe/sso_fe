@@ -5,7 +5,7 @@ const RolePermission = lazy(() => import('./pages'));
 const rolePermissionRouters = [
   {
     path: ROOT_ROUTE,
-    permission: 'SYS_ANNOUNCE_VIEW',
+    permission: 'SYS_ALL',
     component: RolePermission,
     is_tab: true,
   },

@@ -10,7 +10,7 @@ import { columns } from './UserColumnTable';
 function UserTable() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { id: currentUserId, currentRootRoute, queryParamsString } = useCurrentPage();
+  const { id: currentUserId, currentRootRoute, queryParamsString, setQueryParams } = useCurrentPage();
 
   const {
     data: { totalItems, itemPerPage, list, page },
@@ -22,7 +22,7 @@ function UserTable() {
     onSuccess: async ({ errors }, { ids }) => {
       if (errors) return toast.error(errors);
       toast.success('Delete success');
-      if (ids.includes(parseInt(currentUserId))) {
+      if (ids.includes(currentUserId)) {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
       await queryClient.fetchQuery({

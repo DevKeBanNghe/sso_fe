@@ -5,7 +5,7 @@ const SignUp = lazy(() => import('./pages'));
 const signUpRouters = [
   {
     path: '/sign-up',
-    permission: 'SYS_ANNOUNCE_VIEW',
+    permission: 'SYS_ALL',
     component: SignUp,
   },
 ];

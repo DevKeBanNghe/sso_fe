@@ -1,7 +1,7 @@
-import { post, get } from 'common/utils/api.util';
+import { api } from 'common/utils/api.util';
 
 const prefix = `/auth`;
-const signIn = (data = {}) => post(`${prefix}/sign-in`, data);
-const logout = () => get(`/auth/logout`);
+const signIn = (data = {}) => api.post(`${prefix}/sign-in`, data);
+const logout = () => api.get(`/auth/logout`);
 
 export { signIn, logout };

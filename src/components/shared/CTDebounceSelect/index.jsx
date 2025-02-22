@@ -32,6 +32,7 @@ const DebounceSelect = ({ fetchOptions = async () => {}, debounceTimeout = 800, 
   return (
     <Select
       ref={ref}
+      allowClear
       showSearch={true}
       filterOption={false}
       onSearch={debounceFetcher}

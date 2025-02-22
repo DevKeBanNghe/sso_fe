@@ -1,18 +1,36 @@
 import CTIcon from '../CTIcon';
-import { Flex } from 'antd';
+import { Space, Switch } from 'antd';
 import CheckPermission from '../CheckPermission';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { useNavigate } from 'react-router-dom';
-import { DeleteTwoTone, EyeTwoTone, EditTwoTone, CopyTwoTone } from '@ant-design/icons';
+import {
+  DeleteTwoTone,
+  EyeTwoTone,
+  EditTwoTone,
+  CopyTwoTone,
+  CheckOutlined,
+  CloseOutlined,
+  DownOutlined,
+} from '@ant-design/icons';
 import { useEffect, useState } from 'react';
+import { isFunction } from 'lodash';
+import { ACTIVATE_STATUS } from 'common/consts/constants.const';
+import CTDropdown from '../CTDropdown';
+import CTButton from '../CTButton';
 
-export default function Actions({ isShowDefaultActions, actions = [], onGlobalDelete, dataRecord }) {
+export default function Actions({
+  isShowDefaultAction,
+  actions = [],
+  onGlobalDelete,
+  dataRecord,
+  onGlobalToggleActive,
+}) {
   const { currentRootRoute, queryParamsString } = useCurrentPage({ isPaging: false });
   const navigate = useNavigate();
   const [tableActions, setTableActions] = useState(actions);
 
   useEffect(() => {
-    if (!isShowDefaultActions) return () => {};
+    if (!isShowDefaultAction) return () => {};
     const actionsDefault = {
       copy: {
         icon: CopyTwoTone,
@@ -28,6 +46,21 @@ export default function Actions({ isShowDefaultActions, actions = [], onGlobalDe
         icon: EyeTwoTone,
         onClick: ({ row_id }) => navigate(`${currentRootRoute}/${row_id}${queryParamsString}`),
       },
+      active: {
+        render: ({ row_id, is_active }) => (
+          <Switch
+            key={row_id}
+            checkedChildren={<CheckOutlined />}
+            unCheckedChildren={<CloseOutlined />}
+            defaultChecked={Boolean(is_active)}
+            onChange={async (checked) => {
+              if (!isFunction(onGlobalToggleActive)) return;
+              const is_active = checked ? ACTIVATE_STATUS.ACTIVE : ACTIVATE_STATUS.INACTIVE;
+              return await onGlobalToggleActive({ ids: [row_id], is_active });
+            }}
+          />
+        ),
+      },
       delete: {
         icon: DeleteTwoTone,
         twoToneColor: '#e20145',
@@ -41,16 +74,27 @@ export default function Actions({ isShowDefaultActions, actions = [], onGlobalDe
         ...action,
       };
     }
-    setTableActions((prev) => [...Object.values(actionsDefault), ...prev]);
-  }, []);
+    setTableActions(Object.values(actionsDefault));
+  }, [dataRecord]);
 
   return (
-    <Flex gap='middle' justify='center' wrap='wrap'>
-      {tableActions.map(({ onClick, permission_key, ...item }, index) => (
-        <CheckPermission permission_keys={permission_key} key={`social_icon_${index}`}>
-          <CTIcon onClick={() => onClick(dataRecord)} style={{ fontSize: '22px' }} {...item} />
-        </CheckPermission>
-      ))}
-    </Flex>
+    <CTDropdown
+      items={tableActions.map(({ onClick, permission_keys, render: Render, ...item }, index) => ({
+        key: `social_icon_${index}`,
+        label: (
+          <CheckPermission permission_keys={permission_keys} key={`social_icon_${index}`}>
+            {isFunction(Render) ? (
+              <Render {...dataRecord} key={`render_${index}`} />
+            ) : (
+              <CTIcon onClick={() => onClick(dataRecord)} style={{ fontSize: '22px' }} {...item} />
+            )}
+          </CheckPermission>
+        ),
+      }))}
+    >
+      <Space>
+        <CTButton icon={<DownOutlined />}></CTButton>
+      </Space>
+    </CTDropdown>
   );
 }

@@ -5,13 +5,9 @@ import { Input } from 'antd';
 
 const InputRef = (props, ref) => {
   const inputRef = useRef(null);
-  useImperativeHandle(
-    ref,
-    () => {
-      return inputRef.current.input;
-    },
-    [],
-  );
+  useImperativeHandle(ref, () => {
+    return inputRef.current.input;
+  }, []);
   return <Input {...props} ref={inputRef} />;
 };
 

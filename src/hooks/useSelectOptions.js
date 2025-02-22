@@ -9,7 +9,7 @@ export default function useSelectOptions({ func = () => {}, key_value = 'id', ke
       queryKey: ['options', JSON.stringify(value)],
       queryFn: () => func({ limit: SELECT_LIMIT_OPTIONS, ...value }),
     });
-    return transferToOptionSelect({ data, value: key_value, label: key_label });
+    return transferToOptionSelect({ data: data, value: key_value, label: key_label });
   };
 
   return { fetchOptions };

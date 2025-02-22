@@ -1,6 +1,6 @@
-import { post } from 'common/utils/api.util';
+import { api } from 'common/utils/api.util';
 
 const prefix = `/auth`;
-const forgotPassword = (data = {}) => post(`${prefix}/forgot-password`, data);
+const forgotPassword = (data = {}) => api.post(`${prefix}/forgot-password`, data);
 
 export { forgotPassword };

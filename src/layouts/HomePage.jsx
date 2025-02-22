@@ -7,7 +7,6 @@ import useUser from 'hooks/useUser';
 import useAuth from 'hooks/useAuth';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { useEffect } from 'react';
-import { LOADING_STATUS } from 'common/consts/constants.const';
 const { Content } = Layout;
 
 const HomePage = () => {
@@ -18,23 +17,25 @@ const HomePage = () => {
   const { currentRoute, queryParamsString } = useCurrentPage({ isPaging: false });
 
   useEffect(() => {
-    if (!user.user_name && user.loading === LOADING_STATUS.IDLE) return navigate(`/sign-in${queryParamsString}`);
-    if (currentRoute === '/') return navigate(`/users${queryParamsString}`);
-    if (!isAllowed)
+    if (!isAllowed) {
+      if (!user.user_name) return navigate(`/sign-in${queryParamsString}`);
       navigate('error/403', {
         state: {
           status_code: 403,
         },
       });
+    }
+
+    if (currentRoute === '/') return navigate(`/users${queryParamsString}`);
   }, [user, isAllowed, currentRoute]);
 
   return (
     <>
       <FloatButton.BackTop />
       <Layout hasSider>
-        <Layout style={{ margin: '0 50px' }}>
+        <Layout>
           <Header style={{ background: '#737373' }} />
-          <Content style={{ margin: '10px 0', overflow: 'initial' }}>
+          <Content style={{ margin: '20px 20px', overflow: 'initial' }}>
             <div
               style={{
                 padding: 12,

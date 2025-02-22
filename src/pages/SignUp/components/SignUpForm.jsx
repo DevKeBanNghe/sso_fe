@@ -1,4 +1,4 @@
-import { Input, Button, Divider, Flex, Image, DatePicker } from 'antd';
+import { Button, Divider, Flex, Image, DatePicker } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 import Logo from 'images/logo.png';
@@ -13,6 +13,8 @@ import SocialsSignUp from './SocialsSignUp';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
 import { redirectTo } from 'common/utils/common.util';
+import CTInputPassword from 'components/shared/CTInput/InputPassword';
+import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 const { Link } = Typography;
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -29,7 +31,8 @@ export default function SignUpForm() {
   });
 
   const onSubmit = async (values) => {
-    values.date_of_birth = antdDateToStringDate({ value: values.date_of_birth });
+    values.user_date_of_birth = antdDateToStringDate({ value: values.user_date_of_birth });
+    delete values.confirm_password;
     try {
       mutationSignUp.mutate(values);
     } catch (error) {
@@ -46,18 +49,23 @@ export default function SignUpForm() {
       ),
     },
     {
-      field: 'email',
-      render: ({ field }) => {
-        return <CTInput {...field} prefix={<MailOutlined />} placeholder='Email' />;
+      rules: {
+        required: REQUIRED_FIELD_TEMPLATE,
+      },
+      field: 'user_email',
+      render: ({ field, formState: { errors }, rules }) => {
+        return (
+          <CTInput formStateErrors={errors} rules={rules} {...field} prefix={<MailOutlined />} placeholder='Email' />
+        );
       },
     },
     {
-      field: 'date_of_birth',
+      field: 'user_date_of_birth',
       render: ({ field }) => {
         return (
           <Flex gap={'15px'}>
             <Controller
-              name='phone_number'
+              name='user_phone_number'
               control={control}
               render={({ field: fieldPhoneNumber }) => {
                 return <PhoneNumberInput size='large' {...fieldPhoneNumber} />;
@@ -71,25 +79,41 @@ export default function SignUpForm() {
     {
       field: 'user_name',
       render: ({ field }) => {
-        return <CTInput {...field} prefix={<UserOutlined />} placeholder='Username' />;
+        return <CTInput {...field} prefix={<UserOutlined />} />;
       },
     },
     {
-      field: 'password',
-      render: ({ field }) => {
-        return <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='Password' />;
+      rules: {
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-    },
-    {
-      field: 'confirm_password',
-      render: ({ field }) => {
+      field: 'user_password',
+      render: ({ field, formState: { errors }, rules }) => {
         return (
-          <Input.Password
-            disabled={!watch('password')}
+          <CTInputPassword
+            formStateErrors={errors}
+            rules={rules}
             {...field}
             size='large'
             prefix={<LockOutlined />}
-            placeholder='Confirm Password'
+            placeholder='Password'
+          />
+        );
+      },
+    },
+    {
+      rules: {
+        required: REQUIRED_FIELD_TEMPLATE,
+      },
+      field: 'confirm_password',
+      render: ({ field, formState: { errors }, rules }) => {
+        return (
+          <CTInputPassword
+            formStateErrors={errors}
+            disabled={!watch('user_password')}
+            rules={rules}
+            {...field}
+            size='large'
+            prefix={<LockOutlined />}
           />
         );
       },
@@ -123,7 +147,7 @@ export default function SignUpForm() {
       items={items}
       global_control={control}
       onSubmit={handleSubmit(onSubmit)}
-      isShowDefaultActions={false}
+      isShowDefaultAction={false}
     />
   );
 }

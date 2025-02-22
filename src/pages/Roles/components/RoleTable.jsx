@@ -1,16 +1,16 @@
 import CTTable from 'components/shared/CTTable';
-import { deleteRoles, getRoleList } from '../service';
+import { deleteRoles, getRoleList, toggleRolesActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetList from 'hooks/useGetList';
-import { columns } from './RoleColumnTable';
+import { ROLE_ACTION_TABLE_PERMISSION_KEYS } from '../const';
 
 function RoleTable() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { id: currentRoleId, currentRootRoute, queryParamsString } = useCurrentPage();
+  const { id: currentRoleId, currentRootRoute, queryParamsString, setQueryParams } = useCurrentPage();
 
   const { data, queryKey: queryKeyRoleList } = useGetList({ func: getRoleList });
   const { totalItems, itemPerPage, list, page } = data ?? {};
@@ -20,7 +20,7 @@ function RoleTable() {
     onSuccess: async ({ errors }, { ids }) => {
       if (errors) return toast.error(errors);
       toast.success('Delete success');
-      if (ids.includes(parseInt(currentRoleId))) {
+      if (ids.includes(currentRoleId)) {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
       await queryClient.fetchQuery({
@@ -29,7 +29,20 @@ function RoleTable() {
     },
   });
 
+  const mutationToggleRolesActive = useMutation({
+    mutationFn: toggleRolesActive,
+    onSuccess: async ({ errors }) => {
+      if (errors) return toast.error(errors);
+      toast.success('Update activate status success!');
+      await queryClient.fetchQuery({
+        queryKey: [queryKeyRoleList],
+      });
+    },
+  });
+
   const handleDeleteAll = async (ids = []) => mutationDeleteRoles.mutate({ ids });
+  const handleToggleRolesActive = async ({ ids = [], is_active }) =>
+    mutationToggleRolesActive.mutate({ role_ids: ids, is_active });
 
   return (
     <CTTable
@@ -37,9 +50,33 @@ function RoleTable() {
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}
-      columns={columns}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
+      onGlobalToggleActive={handleToggleRolesActive}
+      fieldsColummnExclude={['children']}
+      permission_keys={[ROLE_ACTION_TABLE_PERMISSION_KEYS.VIEW_ROLE_PERMISSION]}
+      actions={[
+        {
+          type: 'active',
+          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.ACTIVE_ROLE_PERMISSION,
+        },
+        {
+          type: 'copy',
+          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.CREATE_ROLE_PERMISSION,
+        },
+        {
+          type: 'delete',
+          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.DELETE_ROLE_PERMISSION,
+        },
+        {
+          type: 'view',
+          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.VIEW_ROLE_PERMISSION,
+        },
+        {
+          type: 'edit',
+          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.UPDATE_ROLE_PERMISSION,
+        },
+      ]}
     />
   );
 }

@@ -4,7 +4,7 @@ import { Space } from 'antd';
 const { Footer: FooterLayout } = Layout;
 const socials = [
   {
-    link_to: 'https://www.linkedin.com/in/c%C3%B9-phan-th%C3%A0nh-trung-29806629a/',
+    link_to: 'https://www.linkedin.com/in/cutrung',
     icon: <LinkedinFilled style={{ color: '#2365b1' }} />,
   },
   {

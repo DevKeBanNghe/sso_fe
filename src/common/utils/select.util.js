@@ -2,8 +2,8 @@ import { isObject } from 'lodash';
 
 export const transferToOptionSelect = ({ data = [], value = 'id', label = '' }) =>
   data?.map((item) => ({
-    value: item[value],
-    label: item[label],
+    value: item[value] ?? item,
+    label: item[label] ?? item,
   }));
 
 export const getDataSelect = (data = {}, key) => {

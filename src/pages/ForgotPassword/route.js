@@ -6,12 +6,12 @@ const NotificationReset = lazy(() => import('./pages/NotificationReset'));
 const forgotPasswordRouters = [
   {
     path: '/forgot-password',
-    permission: 'SYS_ANNOUNCE_VIEW',
+    permission: 'SYS_ALL',
     component: ForgotPassword,
   },
   {
     path: '/notification-reset',
-    permission: 'SYS_ANNOUNCE_VIEW',
+    permission: 'SYS_ALL',
     component: NotificationReset,
   },
 ];

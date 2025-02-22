@@ -1,11 +1,16 @@
 import { Card, Input } from 'antd';
 import CTForm from 'components/shared/CTForm';
-import { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { toast } from 'common/utils/toast.util';
 import { getDataSelect } from 'common/utils/select.util';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPermission, getPermissionDetail, updatePermission } from '../service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createPermission,
+  getHttpMethodOptions,
+  getPermissionActionsOptions,
+  getPermissionDetail,
+  updatePermission,
+} from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, ImportOutlined } from '@ant-design/icons';
@@ -15,17 +20,25 @@ import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import usePermissionOptions from '../hooks/usePermissionOptions';
 import useGetDetail from 'hooks/useGetDetail';
+import { useForm } from 'react-hook-form';
+import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
+import CTCheckboxTree from 'components/shared/CTCheckbox/CheckboxTree';
 
-function PermissionForm() {
+function PermissionFormRef({ isModal = false }, ref) {
   const { keyList } = useQueryKeys();
   const { id: currentPermissionId, isEdit, isCopy, setQueryParams } = useCurrentPage();
+  const [checkedKeysDefault, setCheckedKeysDefault] = useState([]);
+  const { control, handleSubmit, reset, setFocus, setValue } = useForm();
 
-  const { control, handleSubmit, reset, setFocus } = useFormContext();
+  useImperativeHandle(ref, () => ({
+    onSubmit: handleSubmit(onSubmit),
+  }));
+
   const onSubmit = async (values) => {
     if (isCopy) delete values.permission_id;
     const payload = { ...values, permission_id: getDataSelect(values, 'permission_id') };
     currentPermissionId && isEdit
-      ? mutationUpdatePermissions.mutate({ ...payload, permission_id: parseInt(currentPermissionId) })
+      ? mutationUpdatePermissions.mutate({ ...payload, permission_id: currentPermissionId })
       : mutationCreatePermissions.mutate(payload);
   };
 
@@ -51,6 +64,25 @@ function PermissionForm() {
     mutationFn: updatePermission,
     onSuccess: handleSubmitSuccess,
   });
+
+  const { data: permissionActionOptionsData = [] } = useQuery({
+    queryKey: ['getPermissionActionsOptions'],
+    queryFn: async () => {
+      const { data, errors } = await getPermissionActionsOptions();
+      if (errors) return toast.error('Get permission action options failed!');
+      return data;
+    },
+  });
+
+  const { data: httpMethodOptionsData = [] } = useQuery({
+    queryKey: ['getHttpMethodOptions'],
+    queryFn: async () => {
+      const { data, errors } = await getHttpMethodOptions();
+      if (errors) return toast.error('Get http method options failed!');
+      return data;
+    },
+  });
+
   const formItems = [
     {
       render: () => {
@@ -64,28 +96,54 @@ function PermissionForm() {
     {
       field: 'permission_key',
       rules: {
-        required: 'Please input your new permission_key!',
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-      render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Permission Key' />;
+      render: ({ field, formState: { errors }, rules }) => {
+        return <CTInput formStateErrors={errors} rules={rules} {...field} />;
       },
     },
     {
       field: 'permission_router',
-      rules: {
-        required: 'Please input your new permission_router!',
-      },
       render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Permission Router' />;
+        return <CTInput formStateErrors={errors} {...field} />;
+      },
+    },
+    {
+      render: () => {
+        const checkboxActions = httpMethodOptionsData.map((method) => ({
+          title: method,
+          key: method,
+          children: permissionActionOptionsData.map((action) => ({ title: action, key: `${method}_${action}` })),
+        }));
+
+        const onCheck = (values) => {
+          const permission_actions = values.reduce((acc, value) => {
+            const methodChecked = httpMethodOptionsData.find((item) => item === value);
+            if (methodChecked) {
+              acc[methodChecked] = ['manage'];
+              return acc;
+            }
+            const [method, action] = value.split('_');
+            const actionsPrev = acc[method] ?? [];
+            const isExistManageAction = actionsPrev.includes('manage');
+            if (!isExistManageAction) {
+              acc[method] = [...actionsPrev, action];
+            }
+            return acc;
+          }, {});
+
+          setValue('permission_actions', permission_actions);
+        };
+        return <CTCheckboxTree data={checkboxActions} onCheck={onCheck} checkedKeysDefault={checkedKeysDefault} />;
       },
     },
     {
       field: 'permission_name',
       rules: {
-        required: 'Please input your new permission_name!',
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-      render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Permission Name' />;
+      render: ({ field, formState: { errors }, rules }) => {
+        return <CTInput formStateErrors={errors} rules={rules} {...field} />;
       },
     },
     {
@@ -99,9 +157,7 @@ function PermissionForm() {
     {
       field: 'permission_description',
       render: ({ field }) => {
-        return (
-          <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Permission Description' />
-        );
+        return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} />;
       },
     },
   ];
@@ -111,14 +167,36 @@ function PermissionForm() {
     if (dataGetPermissionDetail) {
       setFocus('permission_name');
       reset(dataGetPermissionDetail);
+      const permission_actions = dataGetPermissionDetail.permission_actions;
+      if (permission_actions) {
+        const checkboxActions = Object.entries(dataGetPermissionDetail.permission_actions).reduce(
+          (acc, [method, actions]) => {
+            const isExistManageAction = actions.includes('manage');
+            acc.push(
+              ...(isExistManageAction ? permissionActionOptionsData : actions).map((action) => `${method}_${action}`),
+            );
+            return acc;
+          },
+          [],
+        );
+        setCheckedKeysDefault(checkboxActions);
+      }
     }
   }, [dataGetPermissionDetail]);
 
   return (
     <Card style={{ width: '100%' }}>
-      <CTForm name='reset-password-form' items={formItems} global_control={control} onSubmit={handleSubmit(onSubmit)} />
+      <CTForm
+        name='reset-password-form'
+        items={formItems}
+        global_control={control}
+        onSubmit={handleSubmit(onSubmit)}
+        isShowDefaultAction={isModal ? false : true}
+      />
     </Card>
   );
 }
+
+const PermissionForm = forwardRef(PermissionFormRef);
 
 export default PermissionForm;

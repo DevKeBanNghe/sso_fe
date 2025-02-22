@@ -9,8 +9,8 @@ import { signIn } from '../service';
 import { toast } from 'common/utils/toast.util';
 import { useMutation } from '@tanstack/react-query';
 import CTInput from 'components/shared/CTInput';
-import { redirectTo } from 'common/utils/common.util';
 import useCurrentPage from 'hooks/useCurrentPage';
+import { redirectTo } from 'common/utils/common.util';
 
 export default function SignInForm() {
   const { control, handleSubmit } = useForm();
@@ -32,17 +32,17 @@ export default function SignInForm() {
       },
     },
     {
-      field: 'password',
+      field: 'user_password',
       render: ({ field }) => {
-        return <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='Password' />;
+        return (
+          <>
+            <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='Password' />
+            <Link style={{ float: 'right' }} onClick={() => navigate('/forgot-password')}>
+              Forgot password
+            </Link>
+          </>
+        );
       },
-    },
-    {
-      render: () => (
-        <Link style={{ float: 'right' }} onClick={() => navigate('/forgot-password')}>
-          Forgot password
-        </Link>
-      ),
     },
     {
       render: () => (
@@ -54,14 +54,16 @@ export default function SignInForm() {
     {
       render: () => (
         <Flex gap='middle' justify='center'>
-          <Link onClick={() => navigate('/sign-up')}>Register now !</Link>
+          <Link onClick={() => navigate('/sign-up')}>Register now!</Link>
         </Flex>
       ),
     },
     {
       render: () => (
         <>
-          <Divider plain>Or</Divider>
+          <Divider plain style={{ marginTop: 0 }}>
+            Or sign in with
+          </Divider>
           <SocialsSignIn />
         </>
       ),
@@ -88,7 +90,7 @@ export default function SignInForm() {
       items={formItems}
       global_control={control}
       onSubmit={handleSubmit(onSubmit)}
-      isShowDefaultActions={false}
+      isShowDefaultAction={false}
     />
   );
 }

@@ -7,7 +7,7 @@ export default function useRoleOptions({ params = {} } = {}) {
     key_value: 'role_id',
     key_label: 'role_name',
   });
-  const fetchRoleOptions = async (value) => fetchOptions({ role_name: value, ...params });
+  const fetchRoleOptions = async (value) => fetchOptions({ search: value, ...params });
 
   return { fetchOptions: fetchRoleOptions };
 }

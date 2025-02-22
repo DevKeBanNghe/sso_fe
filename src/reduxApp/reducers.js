@@ -1,4 +1,4 @@
-import userReducer from 'common/reducers/user.reducer';
+import userReducer from 'common/reducers/user/user.reducer';
 
 export const reducers = {
   user: userReducer,

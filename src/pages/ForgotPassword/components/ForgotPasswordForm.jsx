@@ -33,7 +33,7 @@ export default function ForgotPasswordForm() {
     {
       field: 'email',
       render: ({ field }) => {
-        return <CTInput {...field} prefix={<UserOutlined />} placeholder={'Email'} />;
+        return <CTInput {...field} prefix={<UserOutlined />} />;
       },
     },
     {
@@ -93,7 +93,7 @@ export default function ForgotPasswordForm() {
       items={formItems}
       global_control={control}
       onSubmit={handleSubmit(onSubmit)}
-      isShowDefaultActions={false}
+      isShowDefaultAction={false}
     />
   );
 }

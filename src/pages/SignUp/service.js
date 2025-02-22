@@ -1,5 +1,5 @@
-import { post } from 'common/utils/api.util';
+import { api } from 'common/utils/api.util';
 
 const prefix = `/auth`;
-const signUp = (data = {}) => post(`${prefix}/sign-up`, data);
+const signUp = (data = {}) => api.post(`${prefix}/sign-up`, data);
 export { signUp };

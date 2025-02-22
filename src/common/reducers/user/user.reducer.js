@@ -1,14 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { getUserInfo } from './user.action';
-import { LOADING_STATUS } from 'common/consts/constants.const';
-
-const KEY_SYSTEM = 'SYS_ALL';
 
 const initialState = {
   user_name: '',
   permissions: [],
-  loading: '',
-  isAdmin: false,
 };
 
 export const userSlice = createSlice({
@@ -19,19 +14,16 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getUserInfo.pending, (state) => {
-        state.loading = LOADING_STATUS.PENDING;
-      })
+      .addCase(getUserInfo.pending, (state) => {})
       .addCase(getUserInfo.fulfilled, (state, { payload }) => {
-        payload.loading = LOADING_STATUS.IDLE;
-        for (const field of Object.keys(initialState)) {
-          state[field] = payload[field];
+        const data = payload.data;
+        if (data) {
+          for (const field of Object.keys(initialState)) {
+            state[field] = data[field];
+          }
         }
-        state.isAdmin = payload.permissions.includes(KEY_SYSTEM);
       })
-      .addCase(getUserInfo.rejected, (state) => {
-        state.loading = LOADING_STATUS.IDLE;
-      });
+      .addCase(getUserInfo.rejected, (state) => {});
   },
 });
 

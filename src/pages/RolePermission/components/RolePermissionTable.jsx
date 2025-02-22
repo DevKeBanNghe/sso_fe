@@ -8,32 +8,53 @@ import { Checkbox } from 'antd';
 import { getRoleOptions } from 'pages/Roles/service';
 import { getPermissionList } from 'pages/Permissions/service';
 import { getRolePermissionList, updateRolePermission } from '../service';
-import { isArray } from 'lodash';
+import { isArray, isEmpty } from 'lodash';
 import { toast } from 'common/utils/toast.util';
-import { useEffect } from 'react';
-function RolePermissionTable() {
+import { useEffect, useMemo, useState } from 'react';
+import { SearchAddonBefore } from './SearchSelect';
+import { SEARCH_TYPES } from '../const';
+function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
   const { keyList } = useQueryKeys();
   const { queryParams } = useCurrentPage();
   const { control, watch, setValue, getValues, reset } = useForm();
+  const [searchType, setSearchType] = useState(() => {
+    const defaultSearchType = SEARCH_TYPES.find((item) => item.isDefault) ?? SEARCH_TYPES[0];
+    return defaultSearchType.value;
+  });
+  const [searchPermissionValue, setSearchPermissionValue] = useState();
+  const [searchRoleValue, setSearchRole] = useState();
 
-  const { data: queryGetPermissionListData = {} } = useQuery({
-    queryKey: [`${keyList}-${queryParams.page}`],
-    queryFn: () => getPermissionList(queryParams),
+  const { data: queryGetPermissionListData = {}, isFetched: isFetchedPermissions } = useQuery({
+    queryKey: [`${keyList}-${queryParams.page}`, searchPermissionValue],
+    queryFn: () => getPermissionList({ ...queryParams, search: searchPermissionValue }),
     staleTime: STALE_TIME_GET_LIST,
   });
   const { data } = queryGetPermissionListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
-  const { data: roleOptionsDataQuery = {} } = useQuery({
-    queryKey: ['role_options'],
-    queryFn: () => getRoleOptions(),
+  const { data: roleOptionsDataQuery = {}, isFetched: isFetchedRoles } = useQuery({
+    queryKey: ['role_options', searchRoleValue],
+    queryFn: () => getRoleOptions({ search: searchRoleValue }),
   });
 
   const { data: dataRoleOptions = [] } = roleOptionsDataQuery;
 
+  const isSearchPermission = useMemo(() => {
+    const searchTypeCurrent = SEARCH_TYPES.find((item) => item.value === searchType);
+    return searchTypeCurrent.value === 'permission';
+  }, [searchType]);
+
   const { data: rolePermissionDataQuery = {} } = useQuery({
-    queryKey: ['role_permission_list'],
-    queryFn: () => getRolePermissionList(),
+    queryKey: ['permission_role_list', searchPermissionValue, searchRoleValue],
+    queryFn: async () => {
+      const permission_id_role_id_list = list.reduce((acc, { permission_id }) => {
+        const data = dataRoleOptions.reduce((accRole, { role_id }) => [...accRole, { permission_id, role_id }], []);
+        return [...acc, ...data];
+      }, []);
+      const data = await getRolePermissionList({ permission_id_role_id_list });
+      return data;
+    },
+    enabled: isFetchedPermissions && isFetchedRoles,
   });
 
   const { data: rolePermissionData = [] } = rolePermissionDataQuery;
@@ -68,7 +89,6 @@ function RolePermissionTable() {
         render: (value) => {
           const fieldName = `permission_${value.permission_id}`;
           const fieldChecked = `${fieldName}_role_${role_id}_is_checked`;
-
           return (
             <Controller
               name={fieldName}
@@ -122,11 +142,12 @@ function RolePermissionTable() {
       content: 'Update',
       onClick: async () => {
         const values = getValues();
+        if (isEmpty(values)) return toast.error('Not found values update!');
         const payload = [];
         for (const [key, value] of Object.entries(values)) {
           if (!isArray(value)) continue;
           payload.push({
-            permission_id: parseInt(key.replace('permission_', '')),
+            permission_id: key.replace('permission_', ''),
             role_ids: value,
           });
         }
@@ -137,7 +158,25 @@ function RolePermissionTable() {
         toast.success('Update role permission successful!');
       },
     },
+    {
+      content: 'Create role',
+      onClick: () => setIsOpenRoleModal(true),
+    },
+    {
+      content: 'Create permission',
+      onClick: () => setIsOpenPermissionModal(true),
+    },
   ];
+
+  const onSearch = async (value) => {
+    if (isSearchPermission) {
+      setSearchPermissionValue(value);
+      setSearchRole('');
+      return;
+    }
+    setSearchPermissionValue('');
+    setSearchRole(value);
+  };
 
   return (
     <CTTable
@@ -146,10 +185,16 @@ function RolePermissionTable() {
       itemPerPage={itemPerPage}
       rows={list}
       columns={columns}
+      isOverideColumns={true}
       rowSelection={false}
       currentPage={page}
-      isShowDefaultActions={false}
+      isShowDefaultAction={false}
       globalActions={globalActions}
+      columnsInfo={{}}
+      onSearch={onSearch}
+      searchProps={{
+        addonBefore: <SearchAddonBefore onSelect={setSearchType} />,
+      }}
     />
   );
 }

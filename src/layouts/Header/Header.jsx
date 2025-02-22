@@ -1,79 +1,83 @@
-import { Flex, Typography, Col, Row, Image } from 'antd';
+import { Flex, Col, Row, Image } from 'antd';
 import TabHeader from './TabHeader';
 import Logo from 'images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import useUser from 'hooks/useUser';
-import { UserOutlined } from '@ant-design/icons';
-import CTAvartar from 'components/shared/CTAvartar';
-import CTDropdown from 'components/shared/CTDropdown';
-import { toast } from 'common/utils/toast.util';
-import { logout } from 'pages/SignIn/service';
-const { Link } = Typography;
+import { PERSONAL_BRAND } from 'common/consts/constants.const';
+import Events from './Events';
+import Sign from './Sign';
+import useCurrentPage from 'hooks/useCurrentPage';
+
+const UserMobile = () => {
+  const user = useUser();
+  return (
+    <Col xs={8} md={0}>
+      {user.user_name ? <Events /> : <Sign />}
+    </Col>
+  );
+};
+
+const UserDesktop = () => {
+  const user = useUser();
+  return (
+    <Col xs={0} md={2}>
+      {user.user_name ? <Events /> : <Sign />}
+    </Col>
+  );
+};
 
 const Header = () => {
   const navigate = useNavigate();
-  const user = useUser();
-
-  const handleLogout = async () => {
-    await logout();
-    toast.success('Logout successfully');
-    navigate('/sign-in');
+  const { setQueryParams } = useCurrentPage({ isPaging: false });
+  const handleSearch = () => {
+    setQueryParams((prev) => ({ ...prev, page: 1, search: '' }));
+  };
+  const handlePageReset = () => {
+    navigate('/');
+    handleSearch();
   };
 
-  const userInfo = [
-    {
-      label: <Link>Profile</Link>,
-      key: '0',
-    },
-    {
-      label: <Link>Settings</Link>,
-      key: '1',
-    },
-    {
-      label: <Link onClick={handleLogout}>Logout</Link>,
-      key: '2',
-    },
-  ];
-
   return (
-    <>
-      <div style={{ background: '#f5f5f5', position: 'sticky', top: 0, zIndex: 9 }}>
-        <Image preview={false} style={{ cursor: 'pointer' }} width={100} src={Logo} onClick={() => navigate('/')} />
-        <div style={{ float: 'right', paddingTop: '40px' }}>
-          {user ? (
-            <>
-              <Flex gap={'15px'}>
-                <CTDropdown items={userInfo}>
-                  <a onClick={(e) => e.preventDefault()}>
-                    <CTAvartar badgetValue={0} icon={<UserOutlined />} />
-                  </a>
-                </CTDropdown>
-              </Flex>
-            </>
-          ) : (
-            <>
-              <Flex gap={'15px'}>
-                <Link style={{ color: 'black', opacity: '0.7' }} onClick={() => navigate('/sign-in')}>
-                  Sign in
-                </Link>
-                <Link style={{ color: 'black' }} onClick={() => navigate('/sign-up')}>
-                  Sign up
-                </Link>
-              </Flex>
-            </>
-          )}
-        </div>
-        <h2 style={{ margin: '0' }}>Dev Kể Bạn Nghe</h2>
-        <Row>
-          <Col span={16}>
-            <TabHeader />
-          </Col>
-          {/* <Col span={8}>
-            <SearchBar />
-          </Col> */}
-        </Row>
-      </div>
-    </>
+    <Row
+      style={{
+        background: '#f5f5f5',
+        position: 'sticky',
+        top: 0,
+        zIndex: 9,
+        borderBottom: '1px solid #ccc',
+      }}
+      justify={'center'}
+      align='middle'
+    >
+      <Col xs={3} md={1}>
+        <Image preview={false} style={{ cursor: 'pointer' }} width={75} src={Logo} onClick={handlePageReset} />
+      </Col>
+      <Col xs={12} md={3}>
+        <h2
+          onClick={handlePageReset}
+          style={{
+            margin: '0',
+            fontSize: '20px',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {PERSONAL_BRAND}
+        </h2>
+      </Col>
+
+      <Col xs={0} md={14}>
+        <Flex align='center' justify='center'>
+          <TabHeader />
+        </Flex>
+      </Col>
+
+      <UserMobile />
+      <Col xs={1} md={1}></Col>
+      <UserDesktop />
+    </Row>
   );
 };
 

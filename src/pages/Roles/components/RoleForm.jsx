@@ -1,9 +1,8 @@
-import { Card, Input } from 'antd';
+import { Card } from 'antd';
 import CTForm from 'components/shared/CTForm';
 import { forwardRef, useEffect, useImperativeHandle } from 'react';
-import { useForm, useFormContext } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'common/utils/toast.util';
-import { getDataSelect } from 'common/utils/select.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createRole, getRoleDetail, updateRole } from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
@@ -15,8 +14,12 @@ import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetDetail from 'hooks/useGetDetail';
 import useRoleOptions from '../hooks/useRoleOptions';
+import CTInputTextArea from 'components/shared/CTInput/TextArea';
+import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
+import { ROLE_ACTION_TABLE_PERMISSION_KEYS } from '../const';
+import { convertUndefinedToNull } from 'common/utils/common.util';
 
-function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefaultActions }, ref) {
+function RoleFormRef({ isModal = false }, ref) {
   const { keyList } = useQueryKeys();
   const { id: currentRoleId, isEdit, setQueryParams, isCopy } = useCurrentPage();
 
@@ -24,12 +27,12 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
     onSubmit: handleSubmit(onSubmit),
   }));
 
-  const { control, handleSubmit, reset, setFocus } = (isFormModal ? useForm : useFormContext)();
+  const { control, handleSubmit, reset, setFocus } = useForm();
   const onSubmit = async (values) => {
     if (isCopy) delete values.role_id;
-    const payload = { ...values, role_id: getDataSelect(values, 'role_id') };
+    const payload = convertUndefinedToNull(values);
     currentRoleId && isEdit
-      ? mutationUpdateRoles.mutate({ ...payload, role_id: parseInt(currentRoleId) })
+      ? mutationUpdateRoles.mutate({ ...payload, role_id: currentRoleId })
       : mutationCreateRoles.mutate(payload);
   };
 
@@ -68,10 +71,10 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
     {
       field: 'role_name',
       rules: {
-        required: 'Please input your new role_name!',
+        required: REQUIRED_FIELD_TEMPLATE,
       },
-      render: ({ field, formState: { errors } }) => {
-        return <CTInput formStateErrors={errors} {...field} placeholder='Role Name' />;
+      render: ({ field, formState: { errors }, rules }) => {
+        return <CTInput formStateErrors={errors} rules={rules} {...field} />;
       },
     },
     {
@@ -83,12 +86,12 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
     {
       field: 'role_description',
       render: ({ field }) => {
-        return <Input.TextArea {...field} size='large' prefix={<LockOutlined />} placeholder='Role Description' />;
+        return <CTInputTextArea {...field} size='large' prefix={<LockOutlined />} />;
       },
     },
   ];
 
-  const { data: dataGetRoleDetail } = useGetDetail({ func: getRoleDetail });
+  const { data: dataGetRoleDetail } = useGetDetail({ func: isModal ? null : getRoleDetail });
   useEffect(() => {
     if (!dataGetRoleDetail) return () => {};
     setFocus('role_name');
@@ -103,7 +106,17 @@ function RoleFormRef({ isShowDefaultActions = true, isFormModal = !isShowDefault
           items={formItems}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultActions={isShowDefaultActions}
+          isShowDefaultAction={isModal ? false : true}
+          permissionKeysDefaultAction={[
+            {
+              type: 'create',
+              permission_keys: [ROLE_ACTION_TABLE_PERMISSION_KEYS.CREATE_ROLE_PERMISSION],
+            },
+            {
+              type: 'update',
+              permission_keys: [ROLE_ACTION_TABLE_PERMISSION_KEYS.CREATE_ROLE_PERMISSION],
+            },
+          ]}
         />
       </Card>
     </>

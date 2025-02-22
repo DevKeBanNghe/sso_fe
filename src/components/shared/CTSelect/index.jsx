@@ -1,15 +1,18 @@
 import { Select } from 'antd';
-const CTSelect = ({ placeholder, defaultValue = [], onChange, options, optionRender, ...props }) => (
+import { getPlaceholderDefault } from 'common/utils/component.util';
+const CTSelect = ({ defaultValue = [], onChange, options, optionRender, children, ...props }) => (
   <Select
     style={{
       width: '100%',
     }}
-    placeholder={placeholder}
+    placeholder={getPlaceholderDefault(props.name)}
     defaultValue={defaultValue}
     onChange={onChange}
     options={options}
     optionRender={optionRender}
     {...props}
-  />
+  >
+    {children}
+  </Select>
 );
 export default CTSelect;
