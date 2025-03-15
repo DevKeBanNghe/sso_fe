@@ -16,7 +16,7 @@ import useGetDetail from 'hooks/useGetDetail';
 import useRoleOptions from '../hooks/useRoleOptions';
 import CTInputTextArea from 'components/shared/CTInput/TextArea';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
-import { ROLE_ACTION_TABLE_PERMISSION_KEYS } from '../const';
+import { PERMISSION_KEYS } from '../const';
 import { convertUndefinedToNull } from 'common/utils/common.util';
 
 function RoleFormRef({ isModal = false }, ref) {
@@ -110,11 +110,11 @@ function RoleFormRef({ isModal = false }, ref) {
           permissionKeysDefaultAction={[
             {
               type: 'create',
-              permission_keys: [ROLE_ACTION_TABLE_PERMISSION_KEYS.CREATE_ROLE_PERMISSION],
+              permission_keys: [PERMISSION_KEYS.CREATE_ROLE_PERMISSION],
             },
             {
               type: 'update',
-              permission_keys: [ROLE_ACTION_TABLE_PERMISSION_KEYS.CREATE_ROLE_PERMISSION],
+              permission_keys: [PERMISSION_KEYS.CREATE_ROLE_PERMISSION],
             },
           ]}
         />

@@ -12,7 +12,6 @@ import { LockOutlined, ImportOutlined, PlusCircleFilled } from '@ant-design/icon
 import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
-import { PERMISSIONS_KEY_MUTATION } from '../const';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
 import CTIcon from 'components/shared/CTIcon';
 import { getRoleOptions } from 'pages/Roles/service';
@@ -164,15 +163,13 @@ function WebpageFormRef(props, ref) {
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
           isShowDefaultAction={true}
-          permission_keys_default_actions={PERMISSIONS_KEY_MUTATION}
         />
       </Card>
       <CTModal
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}
-      >
+        onOk={() => roleFormRef.current.onSubmit()}>
         <RoleForm ref={roleFormRef} isModal={true} />
       </CTModal>
     </>

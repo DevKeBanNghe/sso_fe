@@ -1,10 +1,11 @@
 import { lazy } from 'react';
+import { PERMISSION_KEYS } from './const';
 const SignIn = lazy(() => import('./pages'));
 
 const signInRouters = [
   {
     path: '/sign-in',
-    permission: 'SYS_ALL',
+    permissions: [PERMISSION_KEYS.VIEW_SIGN_IN],
     component: SignIn,
   },
 ];

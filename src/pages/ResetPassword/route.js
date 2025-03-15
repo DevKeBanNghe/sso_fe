@@ -1,11 +1,12 @@
 import { lazy } from 'react';
+import { PERMISSION_KEYS } from './const';
 
 const ResetPassword = lazy(() => import('./pages'));
 
 const resetPasswordRouters = [
   {
     path: '/reset-password',
-    permission: 'SYS_ALL',
+    permissions: [PERMISSION_KEYS.VIEW_RESET_PASSWORD_PERMISSION],
     component: ResetPassword,
   },
 ];

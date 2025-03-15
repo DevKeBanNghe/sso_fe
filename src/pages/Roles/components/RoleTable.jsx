@@ -5,12 +5,12 @@ import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetList from 'hooks/useGetList';
-import { ROLE_ACTION_TABLE_PERMISSION_KEYS } from '../const';
+import { PERMISSION_KEYS } from '../const';
 
 function RoleTable() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { id: currentRoleId, currentRootRoute, queryParamsString, setQueryParams } = useCurrentPage();
+  const { id: currentRoleId, currentRootRoute, queryParamsString } = useCurrentPage();
 
   const { data, queryKey: queryKeyRoleList } = useGetList({ func: getRoleList });
   const { totalItems, itemPerPage, list, page } = data ?? {};
@@ -54,27 +54,27 @@ function RoleTable() {
       onGlobalDelete={handleDeleteAll}
       onGlobalToggleActive={handleToggleRolesActive}
       fieldsColummnExclude={['children']}
-      permission_keys={[ROLE_ACTION_TABLE_PERMISSION_KEYS.VIEW_ROLE_PERMISSION]}
+      permission_keys={[PERMISSION_KEYS.VIEW_ROLE_PERMISSION]}
       actions={[
         {
           type: 'active',
-          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.ACTIVE_ROLE_PERMISSION,
+          permission_keys: PERMISSION_KEYS.ACTIVE_ROLE_PERMISSION,
         },
         {
           type: 'copy',
-          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.CREATE_ROLE_PERMISSION,
+          permission_keys: PERMISSION_KEYS.CREATE_ROLE_PERMISSION,
         },
         {
           type: 'delete',
-          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.DELETE_ROLE_PERMISSION,
+          permission_keys: PERMISSION_KEYS.DELETE_ROLE_PERMISSION,
         },
         {
           type: 'view',
-          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.VIEW_ROLE_PERMISSION,
+          permission_keys: PERMISSION_KEYS.VIEW_ROLE_PERMISSION,
         },
         {
           type: 'edit',
-          permission_keys: ROLE_ACTION_TABLE_PERMISSION_KEYS.UPDATE_ROLE_PERMISSION,
+          permission_keys: PERMISSION_KEYS.UPDATE_ROLE_PERMISSION,
         },
       ]}
     />

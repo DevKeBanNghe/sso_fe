@@ -1,30 +1,24 @@
 import { useMemo } from 'react';
-import { routers } from 'routers';
 import useCurrentPage from './useCurrentPage';
 import useUser from './useUser';
+import { routers } from 'routers';
 
 export default function useAuth() {
   const user = useUser();
-  const { currentRootRoute, currentRoute, params } = useCurrentPage({ isPaging: false });
-
-  const pathHasParams = useMemo(() => {
-    let routeHasParams = currentRoute;
-    for (const [key, value] of Object.entries(params)) {
-      routeHasParams = routeHasParams.replace(value, `:${key}`);
-    }
-    return routeHasParams;
-  }, [params, currentRoute]);
+  const { currentRootRoute } = useCurrentPage({ isPaging: false });
 
   const isAllowed = useMemo(() => {
     if (!user.user_name) return false;
-    return routers.some((router) => {
-      return (
-        router.path === pathHasParams &&
-        router.path.includes(currentRootRoute) &&
-        user.permissions.includes(router.permission)
-      );
-    });
-  }, [user, pathHasParams]);
+
+    for (const router of routers) {
+      if (router.path.includes(currentRootRoute)) {
+        const isValidPermission = router.permissions?.some((permission) => user.permissions.includes(permission));
+        if (isValidPermission) return true;
+      }
+    }
+
+    return false;
+  }, [user]);
 
   return { isAllowed };
 }

@@ -27,21 +27,22 @@ const OutsideRoutes = () =>
     />
   ));
 
-const Routes = (_routers = [...routers, ...otherRouters], routeParent) => (
-  <Route key={'HomePage'} path={'/'} exact={true} errorElement={Errors} Component={HomePage}>
-    {_routers.map((route) => (
-      <Route
-        key={route.path}
-        index={route.index}
-        path={`${routeParent?.path ?? ''}${route.path}`}
-        exact={route.exact ?? true}
-        loader={route.loader}
-        errorElement={Errors}
-        Component={route.component}
-      >
-        {route.children && route.children.length && Routes(route.children, route)}
-      </Route>
-    ))}
-  </Route>
-);
+const Routes = (_routers = [...routers, ...otherRouters], routeParent) => {
+  return (
+    <Route key={'HomePage'} path={'/'} exact={true} errorElement={Errors} Component={HomePage}>
+      {_routers.map((route) => (
+        <Route
+          key={route.path}
+          index={route.index}
+          path={`${routeParent?.path ?? ''}${route.path}`}
+          exact={route.exact ?? true}
+          loader={route.loader}
+          errorElement={Errors}
+          Component={route.component}>
+          {route.children && route.children.length && Routes(route.children, route)}
+        </Route>
+      ))}
+    </Route>
+  );
+};
 export { Routes, OutsideRoutes };

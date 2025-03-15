@@ -1,27 +1,27 @@
 import { lazy } from 'react';
-import { ROOT_ROUTE } from './const';
+import { PERMISSION_KEYS, ROOT_ROUTE } from './const';
 const Webpages = lazy(() => import('./pages'));
 
 const webpagesRouters = [
   {
     path: ROOT_ROUTE,
-    permission: 'SYS_WEBPAGE_UPDATE',
+    permissions: [PERMISSION_KEYS.VIEW_WEBPAGE_PERMISSION],
     component: Webpages,
     is_tab: true,
   },
   {
     path: `${ROOT_ROUTE}/:id`,
-    permission: 'SYS_WEBPAGE_VIEW_DETAIL',
+    permissions: [PERMISSION_KEYS.VIEW_WEBPAGE_PERMISSION],
     component: Webpages,
   },
   {
     path: `${ROOT_ROUTE}/edit/:id`,
-    permission: 'SYS_WEBPAGE_UPDATE',
+    permissions: [PERMISSION_KEYS.UPDATE_WEBPAGE_PERMISSION],
     component: Webpages,
   },
   {
     path: `${ROOT_ROUTE}/copy/:id`,
-    permission: 'SYS_WEBPAGE_COPY',
+    permissions: [PERMISSION_KEYS.CREATE_WEBPAGE_PERMISSION],
     component: Webpages,
   },
 ];

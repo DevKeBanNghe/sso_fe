@@ -1,0 +1,5 @@
+const PERMISSION_KEYS = {
+  VIEW_SIGN_IN: 'VIEW_SIGN_IN',
+};
+
+export { PERMISSION_KEYS };

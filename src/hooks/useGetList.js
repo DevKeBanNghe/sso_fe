@@ -10,7 +10,7 @@ export default function useGetList({ func = async () => {} }) {
   const { data = {}, ...query } = useQuery({
     queryKey,
     queryFn: async () => {
-      const { data } = await func(queryParams);
+      const { data = {} } = await func(queryParams);
       return data;
     },
     staleTime: STALE_TIME_GET_LIST,
