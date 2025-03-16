@@ -8,6 +8,8 @@ export default function useAuth() {
   const { currentRootRoute } = useCurrentPage({ isPaging: false });
 
   const isAllowed = useMemo(() => {
+    if (user.is_supper_admin) return true;
+
     if (!user.user_name) return false;
 
     for (const router of routers) {

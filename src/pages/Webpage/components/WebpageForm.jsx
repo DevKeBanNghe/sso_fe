@@ -9,7 +9,6 @@ import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, ImportOutlined, PlusCircleFilled } from '@ant-design/icons';
-import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
@@ -17,18 +16,16 @@ import CTIcon from 'components/shared/CTIcon';
 import { getRoleOptions } from 'pages/Roles/service';
 import CTModal from 'components/shared/CTModal';
 import RoleForm from 'pages/Roles/components/RoleForm';
-import usePermissionOptions from 'pages/Permissions/hooks/usePermissionOptions';
 import useGetDetail from 'hooks/useGetDetail';
 import { genUUID } from 'common/utils/string.util';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 
-function WebpageFormRef(props, ref) {
-  const { keyList } = useQueryKeys();
+function WebpageFormRef({ queryKeyFetchListTable }, ref) {
   const { id: currentWebpageId, isEdit, setQueryParams, isCopy, isView } = useCurrentPage();
   const [isOpenRoleModal, setIsOpenRoleModal] = useState(false);
   const roleFormRef = useRef();
 
-  const { control, handleSubmit, reset, setFocus, watch } = useForm({
+  const { control, handleSubmit, reset, setFocus } = useForm({
     defaultValues: {
       webpage_key: genUUID(),
     },
@@ -52,7 +49,7 @@ function WebpageFormRef(props, ref) {
     if (errors) return toast.error(errors);
     toast.success(`${currentWebpageId && isEdit ? 'Update' : 'Create'} successful`);
     setQueryParams((prev) => ({ ...prev, ...DEFAULT_PAGINATION }));
-    queryClient.invalidateQueries({ queryKey: [`${keyList}-${DEFAULT_PAGINATION.page}`] });
+    queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
   };
   const mutationCreateWebpages = useMutation({
     mutationFn: createWebpage,
@@ -73,8 +70,6 @@ function WebpageFormRef(props, ref) {
     });
     return transferToOptionSelect({ data, value: 'role_id', label: 'role_name' });
   };
-
-  const { fetchOptions } = usePermissionOptions({ params: { role_ids: watch('role_ids')?.join(',') } });
 
   const formItems = [
     {
@@ -169,8 +164,7 @@ function WebpageFormRef(props, ref) {
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}
-      >
+        onOk={() => roleFormRef.current.onSubmit()}>
         <RoleForm ref={roleFormRef} isModal={true} />
       </CTModal>
     </>

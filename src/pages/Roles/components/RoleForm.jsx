@@ -19,7 +19,7 @@ import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 import { PERMISSION_KEYS } from '../const';
 import { convertUndefinedToNull } from 'common/utils/common.util';
 
-function RoleFormRef({ isModal = false }, ref) {
+function RoleFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
   const { keyList } = useQueryKeys();
   const { id: currentRoleId, isEdit, setQueryParams, isCopy } = useCurrentPage();
 
@@ -44,7 +44,7 @@ function RoleFormRef({ isModal = false }, ref) {
     if (errors) return toast.error(errors);
     toast.success(`${currentRoleId && isEdit ? 'Update' : 'Create'} successful`);
     setQueryParams((prev) => ({ ...prev, ...DEFAULT_PAGINATION }));
-    queryClient.invalidateQueries({ queryKey: [`${keyList}-${DEFAULT_PAGINATION.page}`] });
+    queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
   };
   const mutationCreateRoles = useMutation({
     mutationFn: createRole,

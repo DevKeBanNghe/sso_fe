@@ -17,6 +17,7 @@ import { isFunction } from 'lodash';
 import { ACTIVATE_STATUS } from 'common/consts/constants.const';
 import CTDropdown from '../CTDropdown';
 import CTButton from '../CTButton';
+import CTPopconfirm from '../CTPopconfirm';
 
 export default function Actions({
   isShowDefaultAction,
@@ -62,9 +63,13 @@ export default function Actions({
         ),
       },
       delete: {
-        icon: DeleteTwoTone,
-        twoToneColor: '#e20145',
-        onClick: ({ row_id }) => onGlobalDelete([row_id]),
+        render: ({ row_id }) => {
+          return (
+            <CTPopconfirm title='Are you sure to delete this?' onConfirm={() => onGlobalDelete([row_id])}>
+              <CTIcon twoToneColor={'#e20145'} icon={DeleteTwoTone} style={{ fontSize: '22px' }} />
+            </CTPopconfirm>
+          );
+        },
       },
     };
     for (const action of actions) {
@@ -90,8 +95,7 @@ export default function Actions({
             )}
           </CheckPermission>
         ),
-      }))}
-    >
+      }))}>
       <Space>
         <CTButton icon={<DownOutlined />}></CTButton>
       </Space>

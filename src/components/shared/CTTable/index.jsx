@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Badge, Button, Col, Flex, Row, Table } from 'antd';
+import { Badge, Button, Col, Flex, Row, Table, Tag } from 'antd';
 import SearchBar from 'layouts/Header/SearchBar';
 import Actions from './Actions';
 import GlobalActions from './GlobalActions';
@@ -9,6 +9,7 @@ import { ACTIVATE_STATUS } from 'common/consts/constants.const';
 import CheckPermission from '../CheckPermission';
 import { getPercentValue } from 'common/utils/number.util';
 import { getPlaceholderDefault } from 'common/utils/component.util';
+import CTPopconfirm from '../CTPopconfirm';
 
 const CTTable = ({
   fixed = 'bottom',
@@ -47,16 +48,31 @@ const CTTable = ({
     if (table_rows.length === 0) return columns;
     let mainColumns = columns;
     if (!isOverideColumns) {
-      const fieldsColumnExcludeCustom = [...fieldsColummnExclude, rowKey, 'key', 'is_active'];
+      const fieldsColumnExcludeCustom = [...fieldsColummnExclude, rowKey, 'key'];
       mainColumns = Object.keys(table_rows[0]).reduce((acc, fieldName) => {
         const isShowColumn = !columnsInfo[fieldName] && !fieldsColumnExcludeCustom.includes(fieldName);
         if (isShowColumn) {
-          acc.push({
+          const column = {
             title: getPlaceholderDefault(fieldName),
             dataIndex: fieldName,
             key: fieldName,
             ...(columns.find((item) => item.key === fieldName) ?? {}),
-          });
+          };
+          if (fieldName === 'is_active') {
+            column.render = (value, index) => {
+              const data = {
+                1: { color: 'blue', content: 'Active' },
+                0: { color: 'red', content: 'Inactive' },
+              };
+              const currentData = data[value];
+              return (
+                <Tag color={currentData.color} key={`is_active_${index}`}>
+                  {currentData.content}
+                </Tag>
+              );
+            };
+          }
+          acc.push(column);
         }
         return acc;
       }, []);
@@ -142,15 +158,14 @@ const CTTable = ({
                     </Button>
                   </Badge>
                   <Badge count={itemsSelected}>
-                    <Button
-                      style={{ background: '#ffccc7' }}
-                      onClick={() => {
+                    <CTPopconfirm
+                      title={`Are you sure to delete ${itemsSelected} items?`}
+                      onConfirm={() => {
                         onGlobalDelete(selectedRowKeys);
                         handleClearAllChecked();
-                      }}
-                    >
-                      Delete
-                    </Button>
+                      }}>
+                      <Button style={{ background: '#ffccc7' }}>Delete</Button>
+                    </CTPopconfirm>
                   </Badge>
 
                   <Badge count={itemsSelected}>
@@ -159,8 +174,7 @@ const CTTable = ({
                       onClick={() => {
                         onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.ACTIVE });
                         handleClearAllChecked();
-                      }}
-                    >
+                      }}>
                       Active
                     </Button>
                   </Badge>
@@ -171,8 +185,7 @@ const CTTable = ({
                       onClick={() => {
                         onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.INACTIVE });
                         handleClearAllChecked();
-                      }}
-                    >
+                      }}>
                       Deactive
                     </Button>
                   </Badge>

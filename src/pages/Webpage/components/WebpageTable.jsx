@@ -1,18 +1,26 @@
 import CTTable from 'components/shared/CTTable';
-import useQueryKeys from 'hooks/useQueryKeys';
-import { deleteWebpages, getWebpageList } from '../service';
+import { deleteWebpages, getWebpageList, toggleWebpagesActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetList from 'hooks/useGetList';
 import { columns } from './WebpageColumnTable';
+import { forwardRef, useImperativeHandle } from 'react';
 
-export default function WebpageTable() {
+function WebpageTableRef(props, ref) {
   const navigate = useNavigate();
-  const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
-  const { id: currentWebpageId, currentRootRoute, queryParams, setQueryParams, queryParamsString } = useCurrentPage();
+  const { id: currentWebpageId, currentRootRoute, setQueryParams, queryParamsString } = useCurrentPage();
+
+  const {
+    data: { totalItems, itemPerPage, list, page },
+    queryKey: queryKeyGetWebpageList,
+  } = useGetList({ func: getWebpageList });
+
+  useImperativeHandle(ref, () => ({
+    queryKey: queryKeyGetWebpageList,
+  }));
 
   const mutationDeleteWebpages = useMutation({
     mutationFn: deleteWebpages,
@@ -22,17 +30,27 @@ export default function WebpageTable() {
       if (ids.includes(currentWebpageId)) {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
-      await queryClient.fetchQuery({
-        queryKey: [`${keyList}-${queryParams.page}`],
+      await queryClient.invalidateQueries({
+        queryKey: queryKeyGetWebpageList,
       });
     },
   });
 
-  const handleDeleteAll = async (ids = []) => mutationDeleteWebpages.mutate({ ids });
+  const mutationToggleWebpagesActive = useMutation({
+    mutationFn: toggleWebpagesActive,
+    onSuccess: async ({ errors }) => {
+      if (errors) return toast.error(errors);
+      toast.success('Update activate status success!');
+      await queryClient.invalidateQueries({
+        queryKey: queryKeyGetWebpageList,
+      });
+    },
+  });
 
-  const {
-    data: { totalItems, itemPerPage, list, page },
-  } = useGetList({ func: getWebpageList });
+  const handleToggleWebpagesActive = async ({ ids = [], is_active }) =>
+    mutationToggleWebpagesActive.mutate({ webpage_ids: ids, is_active });
+
+  const handleDeleteAll = async (ids = []) => mutationDeleteWebpages.mutate({ ids });
 
   return (
     <CTTable
@@ -44,6 +62,11 @@ export default function WebpageTable() {
       onChange={({ current: page }) => setQueryParams((pre) => ({ ...pre, page }))}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
+      onGlobalToggleActive={handleToggleWebpagesActive}
     />
   );
 }
+
+const WebpageTable = forwardRef(WebpageTableRef);
+
+export default WebpageTable;

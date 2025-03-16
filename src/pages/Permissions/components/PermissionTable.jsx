@@ -1,23 +1,25 @@
 import CTTable from 'components/shared/CTTable';
-import useQueryKeys from 'hooks/useQueryKeys';
-import { deletePermissions, getPermissionList } from '../service';
+import { deletePermissions, getPermissionList, togglePermissionsActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetList from 'hooks/useGetList';
+import { forwardRef, useImperativeHandle } from 'react';
 
-function PermissionTable() {
+function PermissionTableRef(props, ref) {
   const navigate = useNavigate();
-  const { keyList } = useQueryKeys();
   const queryClient = useQueryClient();
+  const { id: currentPermissionId, currentRootRoute, queryParamsString } = useCurrentPage();
+
   const {
-    id: currentPermissionId,
-    currentRootRoute,
-    queryParams,
-    queryParamsString,
-    setQueryParams,
-  } = useCurrentPage();
+    data: { totalItems, itemPerPage, list, page },
+    queryKey: queryKeyGetPermissionList,
+  } = useGetList({ func: getPermissionList });
+
+  useImperativeHandle(ref, () => ({
+    queryKey: queryKeyGetPermissionList,
+  }));
 
   const mutationDeletePermissions = useMutation({
     mutationFn: deletePermissions,
@@ -27,19 +29,27 @@ function PermissionTable() {
       if (ids.includes(currentPermissionId)) {
         return navigate(`${currentRootRoute}${queryParamsString}`);
       }
-      await queryClient.fetchQuery({
-        queryKey: [`${keyList}-${queryParams.page}`],
+      await queryClient.invalidateQueries({
+        queryKey: queryKeyGetPermissionList,
       });
     },
   });
 
-  const handleDeleteAll = async (ids = []) => {
-    mutationDeletePermissions.mutate({ ids });
-  };
+  const mutationTogglePermissionsActive = useMutation({
+    mutationFn: togglePermissionsActive,
+    onSuccess: async ({ errors }) => {
+      if (errors) return toast.error(errors);
+      toast.success('Update activate status success!');
+      await queryClient.invalidateQueries({
+        queryKey: queryKeyGetPermissionList,
+      });
+    },
+  });
 
-  const {
-    data: { totalItems, itemPerPage, list, page },
-  } = useGetList({ func: getPermissionList });
+  const handleTogglePermissionsActive = async ({ ids = [], is_active }) =>
+    mutationTogglePermissionsActive.mutate({ permission_ids: ids, is_active });
+
+  const handleDeleteAll = async (ids = []) => mutationDeletePermissions.mutate({ ids });
 
   return (
     <CTTable
@@ -50,8 +60,11 @@ function PermissionTable() {
       currentPage={page}
       fieldsColummnExclude={['children']}
       onGlobalDelete={handleDeleteAll}
+      onGlobalToggleActive={handleTogglePermissionsActive}
     />
   );
 }
+
+const PermissionTable = forwardRef(PermissionTableRef);
 
 export default PermissionTable;

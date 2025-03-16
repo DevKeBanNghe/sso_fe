@@ -1,10 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { getUserInfo } from './user.action';
 
-const initialState = {
-  user_name: '',
-  permissions: [],
-};
+const initialState = {};
 
 export const userSlice = createSlice({
   name: 'user',
@@ -18,7 +15,7 @@ export const userSlice = createSlice({
       .addCase(getUserInfo.fulfilled, (state, { payload }) => {
         const data = payload.data;
         if (data) {
-          for (const field of Object.keys(initialState)) {
+          for (const field of Object.keys(data)) {
             state[field] = data[field];
           }
         }

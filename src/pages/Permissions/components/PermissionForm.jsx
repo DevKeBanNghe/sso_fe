@@ -24,7 +24,7 @@ import { useForm } from 'react-hook-form';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 import CTCheckboxTree from 'components/shared/CTCheckbox/CheckboxTree';
 
-function PermissionFormRef({ isModal = false }, ref) {
+function PermissionFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
   const { keyList } = useQueryKeys();
   const { id: currentPermissionId, isEdit, isCopy, setQueryParams } = useCurrentPage();
   const [checkedKeysDefault, setCheckedKeysDefault] = useState([]);
@@ -51,7 +51,7 @@ function PermissionFormRef({ isModal = false }, ref) {
     if (errors) return toast.error(errors);
     toast.success(`${currentPermissionId && isEdit ? 'Update' : 'Create'} successful`);
     setQueryParams((prev) => ({ ...prev, ...DEFAULT_PAGINATION }));
-    queryClient.invalidateQueries({ queryKey: [`${keyList}-${DEFAULT_PAGINATION.page}`] });
+    queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
   };
   const mutationCreatePermissions = useMutation({
     mutationFn: createPermission,

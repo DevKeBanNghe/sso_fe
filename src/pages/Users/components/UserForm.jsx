@@ -9,15 +9,13 @@ import { createUser, getUserDetail, updateUser } from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { ImportOutlined } from '@ant-design/icons';
-import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetDetail from 'hooks/useGetDetail';
 import { isEmpty } from 'lodash';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 
-function UserFormRef({ isModal = false }, ref) {
-  const { keyList } = useQueryKeys();
+function UserFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
   const { id: currentUserId, isEdit, setQueryParams, isView, isCopy } = useCurrentPage();
   const { control, handleSubmit, reset, setFocus } = useForm({
     defaultValues: {
@@ -45,7 +43,7 @@ function UserFormRef({ isModal = false }, ref) {
     if (errors) return toast.error(errors);
     toast.success(`${currentUserId && isEdit ? 'Update' : 'Create'} successful`);
     setQueryParams((prev) => ({ ...prev, ...DEFAULT_PAGINATION }));
-    queryClient.invalidateQueries({ queryKey: [`${keyList}-${DEFAULT_PAGINATION.page}`] });
+    queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
   };
   const mutationCreateUsers = useMutation({
     mutationFn: createUser,
