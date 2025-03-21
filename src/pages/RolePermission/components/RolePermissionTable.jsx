@@ -126,7 +126,8 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}></Checkbox>
+                    }}
+                  ></Checkbox>
                 );
               }}
             />

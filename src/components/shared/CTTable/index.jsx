@@ -173,7 +173,8 @@ const CTTable = ({
                       onConfirm={() => {
                         onGlobalDelete(selectedRowKeys);
                         handleClearAllChecked();
-                      }}>
+                      }}
+                    >
                       <Button style={{ background: '#ffccc7' }}>Delete</Button>
                     </CTPopconfirm>
                   </Badge>
@@ -184,7 +185,8 @@ const CTTable = ({
                       onClick={() => {
                         onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.ACTIVE });
                         handleClearAllChecked();
-                      }}>
+                      }}
+                    >
                       Active
                     </Button>
                   </Badge>
@@ -195,7 +197,8 @@ const CTTable = ({
                       onClick={() => {
                         onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.INACTIVE });
                         handleClearAllChecked();
-                      }}>
+                      }}
+                    >
                       Deactive
                     </Button>
                   </Badge>
