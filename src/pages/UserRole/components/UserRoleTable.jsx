@@ -126,8 +126,7 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}
-                  ></Checkbox>
+                    }}></Checkbox>
                 );
               }}
             />
@@ -192,6 +191,7 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
       globalActions={globalActions}
       columnsInfo={{}}
       onSearch={onSearch}
+      isToggleColumnsView={false}
       searchProps={{
         addonBefore: <SearchAddonBefore onSelect={setSearchType} />,
       }}

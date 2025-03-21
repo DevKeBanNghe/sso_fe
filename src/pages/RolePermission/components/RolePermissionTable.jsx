@@ -126,8 +126,7 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}
-                  ></Checkbox>
+                    }}></Checkbox>
                 );
               }}
             />
@@ -192,6 +191,7 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
       globalActions={globalActions}
       columnsInfo={{}}
       onSearch={onSearch}
+      isToggleColumnsView={false}
       searchProps={{
         addonBefore: <SearchAddonBefore onSelect={setSearchType} />,
       }}

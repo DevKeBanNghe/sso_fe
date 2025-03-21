@@ -10,6 +10,7 @@ import CheckPermission from '../CheckPermission';
 import { getPercentValue } from 'common/utils/number.util';
 import { getPlaceholderDefault } from 'common/utils/component.util';
 import CTPopconfirm from '../CTPopconfirm';
+import ToggleColumnsView from './ToggleColumnsView';
 
 const CTTable = ({
   fixed = 'bottom',
@@ -31,9 +32,13 @@ const CTTable = ({
   permission_keys = [],
   isOverideColumns = false,
   fieldsColummnExclude = [],
+  isToggleColumnsView = true,
   ...props
 }) => {
+  const defaultActionKey = 'action';
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [columnsShow, setColumnsShow] = useState(isShowDefaultAction ? [defaultActionKey] : []);
+
   const { setQueryParams } = useCurrentPage({ isPaging: false });
 
   const onSearchBar =
@@ -46,6 +51,7 @@ const CTTable = ({
 
   const table_columns = useMemo(() => {
     if (table_rows.length === 0) return columns;
+
     let mainColumns = columns;
     if (!isOverideColumns) {
       const fieldsColumnExcludeCustom = [...fieldsColummnExclude, rowKey, 'key'];
@@ -101,7 +107,7 @@ const CTTable = ({
     if (isShowDefaultAction) {
       columnAction = {
         title: 'Action',
-        key: 'Action',
+        key: defaultActionKey,
         fixed: 'right',
         align: 'center',
         width: '8%',
@@ -126,8 +132,12 @@ const CTTable = ({
       ...item,
       width: item.width ?? percentWidthRemain / mainColumns.length + '%',
     }));
-    const data = [...mainColumns, ...columnsInfoRender];
-    return columnAction ? [...data, columnAction] : data;
+    const columnsValue = [...mainColumns, ...columnsInfoRender];
+    const data = columnAction ? [...columnsValue, columnAction] : columnsValue;
+    return data.map((item) => ({
+      ...item,
+      hidden: isToggleColumnsView ? !columnsShow.includes(item.key) : false,
+    }));
   }, [actions, columns, isShowDefaultAction, table_rows]);
 
   const selectedRowsRef = useRef(new Map());
@@ -163,8 +173,7 @@ const CTTable = ({
                       onConfirm={() => {
                         onGlobalDelete(selectedRowKeys);
                         handleClearAllChecked();
-                      }}
-                    >
+                      }}>
                       <Button style={{ background: '#ffccc7' }}>Delete</Button>
                     </CTPopconfirm>
                   </Badge>
@@ -175,8 +184,7 @@ const CTTable = ({
                       onClick={() => {
                         onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.ACTIVE });
                         handleClearAllChecked();
-                      }}
-                    >
+                      }}>
                       Active
                     </Button>
                   </Badge>
@@ -187,8 +195,7 @@ const CTTable = ({
                       onClick={() => {
                         onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.INACTIVE });
                         handleClearAllChecked();
-                      }}
-                    >
+                      }}>
                       Deactive
                     </Button>
                   </Badge>
@@ -201,6 +208,20 @@ const CTTable = ({
           </Col>
           <Col span={8}>{isFunction(onSearchBar) ? <SearchBar onSearch={onSearchBar} {...searchProps} /> : <></>}</Col>
         </Row>
+
+        {isToggleColumnsView ? (
+          <ToggleColumnsView
+            isShowDefaultAction={isShowDefaultAction}
+            columnsInfo={columnsInfo}
+            table_columns={table_columns}
+            table_rows={table_rows}
+            columnsShow={columnsShow}
+            setColumnsShow={setColumnsShow}
+          />
+        ) : (
+          <></>
+        )}
+
         <Table
           columns={table_columns}
           dataSource={table_rows}
