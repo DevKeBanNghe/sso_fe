@@ -40,8 +40,7 @@ const HomePage = () => {
               style={{
                 padding: 12,
                 minHeight: '100vh',
-              }}
-            >
+              }}>
               {outlet}
             </div>
           </Content>

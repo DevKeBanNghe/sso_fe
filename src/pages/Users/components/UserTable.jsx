@@ -1,5 +1,5 @@
 import CTTable from 'components/shared/CTTable';
-import { deleteUsers, getUserList, toggleUsersActive } from '../service';
+import { deleteUsers, exportUsers, getUserList, toggleUsersActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +52,8 @@ function UserTableRef(props, ref) {
 
   const handleDeleteAll = async (ids = []) => mutationDeleteUsers.mutate({ ids });
 
+  const handleExportExcel = async (ids = []) => exportUsers({ ids });
+
   return (
     <CTTable
       rowKey={'user_id'}
@@ -61,6 +63,7 @@ function UserTableRef(props, ref) {
       columns={columns}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
+      onGlobalExport={handleExportExcel}
       onGlobalToggleActive={handleToggleUsersActive}
     />
   );

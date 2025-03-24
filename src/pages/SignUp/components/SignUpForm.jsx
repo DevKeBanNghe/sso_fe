@@ -147,7 +147,7 @@ export default function SignUpForm() {
       items={items}
       global_control={control}
       onSubmit={handleSubmit(onSubmit)}
-      isShowDefaultAction={false}
+      isShowActionDefault={false}
     />
   );
 }

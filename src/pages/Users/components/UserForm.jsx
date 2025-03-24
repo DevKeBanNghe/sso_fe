@@ -7,13 +7,12 @@ import { genUUID } from 'common/utils/string.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createUser, getUserDetail, updateUser } from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
-import CTButton from 'components/shared/CTButton';
-import { ImportOutlined } from '@ant-design/icons';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetDetail from 'hooks/useGetDetail';
 import { isEmpty } from 'lodash';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
+import CTUploadButton from 'components/shared/CTButton/CTUploadButton';
 
 function UserFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
   const { id: currentUserId, isEdit, setQueryParams, isView, isCopy } = useCurrentPage();
@@ -59,11 +58,7 @@ function UserFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
   const formItems = [
     {
       render: () => {
-        return (
-          <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleUsersImport}>
-            Import
-          </CTButton>
-        );
+        return <CTUploadButton content='Import' />;
       },
     },
     {
@@ -101,7 +96,7 @@ function UserFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
           items={formItems}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultAction={isModal ? false : true}
+          isShowActionDefault={isModal ? false : true}
         />
       </Card>
     </>

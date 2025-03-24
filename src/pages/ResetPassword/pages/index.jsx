@@ -64,8 +64,7 @@ export default function ResetPassword() {
               //   message:
               //     'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character',
               // },
-            ]}
-          >
+            ]}>
             <Input.Password {...field} size='large' prefix={<LockOutlined />} placeholder='New Password' />
           </Form.Item>
         );
@@ -88,8 +87,7 @@ export default function ResetPassword() {
                   return Promise.reject(new Error('Confirm password not match!'));
                 },
               }),
-            ]}
-          >
+            ]}>
             <Input.Password disabled={!watch('password')} {...field} size='large' prefix={<LockOutlined />} />
             {errors && errors.confirm_password?.message}
           </Form.Item>
@@ -105,8 +103,7 @@ export default function ResetPassword() {
             type='primary'
             htmlType='submit'
             className='login-form-button'
-            style={{ width: '100%' }}
-          >
+            style={{ width: '100%' }}>
             Confirm
           </Button>
         </Form.Item>
@@ -122,7 +119,7 @@ export default function ResetPassword() {
           items={items}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultAction={false}
+          isShowActionDefault={false}
         />
       </Col>
     </Row>

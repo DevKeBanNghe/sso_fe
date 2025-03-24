@@ -14,7 +14,7 @@ export default function CTForm({
   items = [],
   onSubmit,
   actions: initActions = [],
-  isShowDefaultAction = true,
+  isShowActionDefault = true,
   permissionKeysDefaultAction = [],
   ...props
 }) {
@@ -23,7 +23,7 @@ export default function CTForm({
   const { id, isEdit, isView, queryParamsString, currentRoute } = useCurrentPage({ isPaging: false });
 
   const actions = useMemo(() => {
-    if (!isShowDefaultAction) return initActions;
+    if (!isShowActionDefault) return initActions;
     let defaultAction = {
       type: 'submit',
       content: id && isEdit ? 'Update' : 'Create',
@@ -94,8 +94,7 @@ export default function CTForm({
               htmlType={htmlType ?? 'submit'}
               className='login-form-button'
               style={{ width: '100%', ...style }}
-              {...action}
-            >
+              {...action}>
               {action.content ?? 'Submit'}
             </Button>
           </Form.Item>

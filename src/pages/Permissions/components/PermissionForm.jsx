@@ -191,7 +191,7 @@ function PermissionFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
         items={formItems}
         global_control={control}
         onSubmit={handleSubmit(onSubmit)}
-        isShowDefaultAction={isModal ? false : true}
+        isShowActionDefault={isModal ? false : true}
       />
     </Card>
   );

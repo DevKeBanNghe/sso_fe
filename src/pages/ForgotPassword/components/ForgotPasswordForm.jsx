@@ -44,8 +44,7 @@ export default function ForgotPasswordForm() {
           type='primary'
           htmlType='submit'
           className='login-form-button'
-          style={{ width: '100%' }}
-        >
+          style={{ width: '100%' }}>
           Send
         </Button>
       ),
@@ -93,7 +92,7 @@ export default function ForgotPasswordForm() {
       items={formItems}
       global_control={control}
       onSubmit={handleSubmit(onSubmit)}
-      isShowDefaultAction={false}
+      isShowActionDefault={false}
     />
   );
 }

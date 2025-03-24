@@ -2,7 +2,7 @@ import { Checkbox } from 'antd';
 import { useEffect, useMemo } from 'react';
 
 function ToggleColumnsView({
-  isShowDefaultAction,
+  isShowActionDefault,
   table_rows = [],
   table_columns = [],
   columnsInfo,
@@ -11,7 +11,7 @@ function ToggleColumnsView({
 }) {
   useEffect(() => {
     const firstRow = table_rows[0];
-    const isEmptyColumnsShoww = columnsShow.length === (isShowDefaultAction ? 1 : 0);
+    const isEmptyColumnsShoww = columnsShow.length === (isShowActionDefault ? 1 : 0);
     if (isEmptyColumnsShoww && firstRow) {
       const columnsInfoShow = Object.entries(columnsInfo).reduce((acc, [column, isShow]) => {
         if (isShow) acc[column] = true;

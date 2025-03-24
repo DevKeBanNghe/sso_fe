@@ -64,7 +64,12 @@ api.interceptors.request.use((req) => {
 });
 
 api.interceptors.response.use(
-  ({ data, status }) => ({ ...data, status }),
+  ({ data, status }) => {
+    const result = { data, status };
+    if (data instanceof Blob) return result;
+    const { data: dataResult, ...resultRemain } = result;
+    return { ...dataResult, ...resultRemain };
+  },
   async (error) => {
     const originalRequest = error.config;
 

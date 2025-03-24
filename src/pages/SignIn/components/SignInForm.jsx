@@ -73,7 +73,7 @@ export default function SignInForm() {
     mutationFn: signIn,
     onSuccess: ({ data, errors }) => {
       if (errors) return toast.error(errors);
-      redirectTo(data.webpage_url ?? '/');
+      return redirectTo(data.webpage_url ?? '/');
     },
   });
 
@@ -90,7 +90,7 @@ export default function SignInForm() {
       items={formItems}
       global_control={control}
       onSubmit={handleSubmit(onSubmit)}
-      isShowDefaultAction={false}
+      isShowActionDefault={false}
     />
   );
 }

@@ -1,15 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
-import { Badge, Button, Col, Flex, Row, Table, Tag } from 'antd';
+import { Col, Row, Table, Tag } from 'antd';
 import SearchBar from 'layouts/Header/SearchBar';
 import Actions from './Actions';
 import GlobalActions from './GlobalActions';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { isFunction, startCase } from 'lodash';
-import { ACTIVATE_STATUS } from 'common/consts/constants.const';
 import CheckPermission from '../CheckPermission';
 import { getPercentValue } from 'common/utils/number.util';
 import { getPlaceholderDefault } from 'common/utils/component.util';
-import CTPopconfirm from '../CTPopconfirm';
 import ToggleColumnsView from './ToggleColumnsView';
 
 const CTTable = ({
@@ -21,13 +19,15 @@ const CTTable = ({
   rows = [],
   rowKey,
   actions = [],
-  isShowDefaultAction = true,
+  isShowActionDefault = true,
   handleSelected = () => {},
   onGlobalDelete = () => {},
+  onGlobalExport = () => {},
   onGlobalToggleActive = () => {},
   onSearch,
   searchProps = {},
   globalActions = [],
+  isShowGlobalActionsDefault = [],
   columnsInfo = { created_at: true, created_by: true, updated_at: true, updated_by: true },
   permission_keys = [],
   isOverideColumns = false,
@@ -37,7 +37,7 @@ const CTTable = ({
 }) => {
   const defaultActionKey = 'action';
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [columnsShow, setColumnsShow] = useState(isShowDefaultAction ? [defaultActionKey] : []);
+  const [columnsShow, setColumnsShow] = useState(isShowActionDefault ? [defaultActionKey] : []);
 
   const { setQueryParams } = useCurrentPage({ isPaging: false });
 
@@ -104,7 +104,7 @@ const CTTable = ({
 
     let percentWidthRemain = 100 - columnsInfoPercentWidth;
     let columnAction;
-    if (isShowDefaultAction) {
+    if (isShowActionDefault) {
       columnAction = {
         title: 'Action',
         key: defaultActionKey,
@@ -116,7 +116,7 @@ const CTTable = ({
           return (
             <Actions
               key={row_id}
-              isShowDefaultAction={isShowDefaultAction}
+              isShowActionDefault={isShowActionDefault}
               actions={actions}
               dataRecord={{ ...record, row_id }}
               onGlobalDelete={onGlobalDelete}
@@ -138,7 +138,7 @@ const CTTable = ({
       ...item,
       hidden: isToggleColumnsView ? !columnsShow.includes(item.key) : false,
     }));
-  }, [actions, columns, isShowDefaultAction, table_rows]);
+  }, [actions, columns, isShowActionDefault, table_rows]);
 
   const selectedRowsRef = useRef(new Map());
   const handleSelectedRows = (selectedRowKeys, rowsSelected) => {
@@ -147,74 +147,28 @@ const CTTable = ({
     handleSelected(selectedRowKeys, rowsSelected);
   };
 
-  const handleClearAllChecked = () => {
-    selectedRowsRef.current.clear();
-    setSelectedRowKeys([]);
-  };
-
-  const itemsSelected = selectedRowKeys.length;
-
   return (
     <>
       <CheckPermission permission_keys={permission_keys}>
         <Row style={{ marginBottom: '5px' }}>
           <Col span={16}>
-            <Flex gap={'middle'} wrap='wrap'>
-              {itemsSelected > 0 ? (
-                <>
-                  <Badge count={itemsSelected}>
-                    <Button style={{ background: '#ffffb8' }} onClick={handleClearAllChecked}>
-                      Clear
-                    </Button>
-                  </Badge>
-                  <Badge count={itemsSelected}>
-                    <CTPopconfirm
-                      title={`Are you sure to delete ${itemsSelected} items?`}
-                      onConfirm={() => {
-                        onGlobalDelete(selectedRowKeys);
-                        handleClearAllChecked();
-                      }}
-                    >
-                      <Button style={{ background: '#ffccc7' }}>Delete</Button>
-                    </CTPopconfirm>
-                  </Badge>
-
-                  <Badge count={itemsSelected}>
-                    <Button
-                      style={{ background: '#bae7ff' }}
-                      onClick={() => {
-                        onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.ACTIVE });
-                        handleClearAllChecked();
-                      }}
-                    >
-                      Active
-                    </Button>
-                  </Badge>
-
-                  <Badge count={itemsSelected}>
-                    <Button
-                      style={{ background: '#d9d9d9' }}
-                      onClick={() => {
-                        onGlobalToggleActive({ ids: selectedRowKeys, is_active: ACTIVATE_STATUS.INACTIVE });
-                        handleClearAllChecked();
-                      }}
-                    >
-                      Deactive
-                    </Button>
-                  </Badge>
-                </>
-              ) : (
-                <></>
-              )}
-              <GlobalActions actions={globalActions} />
-            </Flex>
+            <GlobalActions
+              actions={globalActions}
+              selectedRowsRef={selectedRowsRef}
+              selectedRowKeys={selectedRowKeys}
+              setSelectedRowKeys={setSelectedRowKeys}
+              onGlobalDelete={onGlobalDelete}
+              onGlobalToggleActive={onGlobalToggleActive}
+              onGlobalExport={onGlobalExport}
+              isShowGlobalActionsDefault={isShowGlobalActionsDefault}
+            />
           </Col>
           <Col span={8}>{isFunction(onSearchBar) ? <SearchBar onSearch={onSearchBar} {...searchProps} /> : <></>}</Col>
         </Row>
 
         {isToggleColumnsView ? (
           <ToggleColumnsView
-            isShowDefaultAction={isShowDefaultAction}
+            isShowActionDefault={isShowActionDefault}
             columnsInfo={columnsInfo}
             table_columns={table_columns}
             table_rows={table_rows}

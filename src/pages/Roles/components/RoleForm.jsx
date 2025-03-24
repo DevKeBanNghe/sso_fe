@@ -9,7 +9,6 @@ import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import CTButton from 'components/shared/CTButton';
 import { LockOutlined, ImportOutlined } from '@ant-design/icons';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
-import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import useGetDetail from 'hooks/useGetDetail';
@@ -20,7 +19,6 @@ import { PERMISSION_KEYS } from '../const';
 import { convertUndefinedToNull } from 'common/utils/common.util';
 
 function RoleFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
-  const { keyList } = useQueryKeys();
   const { id: currentRoleId, isEdit, setQueryParams, isCopy } = useCurrentPage();
 
   useImperativeHandle(ref, () => ({
@@ -106,7 +104,7 @@ function RoleFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
           items={formItems}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultAction={isModal ? false : true}
+          isShowActionDefault={isModal ? false : true}
           permissionKeysDefaultAction={[
             {
               type: 'create',

@@ -157,15 +157,14 @@ function WebpageFormRef({ queryKeyFetchListTable }, ref) {
           items={formItems}
           global_control={control}
           onSubmit={handleSubmit(onSubmit)}
-          isShowDefaultAction={true}
+          isShowActionDefault={true}
         />
       </Card>
       <CTModal
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}
-      >
+        onOk={() => roleFormRef.current.onSubmit()}>
         <RoleForm ref={roleFormRef} isModal={true} />
       </CTModal>
     </>

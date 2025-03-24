@@ -20,7 +20,7 @@ import CTButton from '../CTButton';
 import CTPopconfirm from '../CTPopconfirm';
 
 export default function Actions({
-  isShowDefaultAction,
+  isShowActionDefault,
   actions = [],
   onGlobalDelete,
   dataRecord,
@@ -31,7 +31,7 @@ export default function Actions({
   const [tableActions, setTableActions] = useState(actions);
 
   useEffect(() => {
-    if (!isShowDefaultAction) return () => {};
+    if (!isShowActionDefault) return () => {};
     const actionsDefault = {
       copy: {
         icon: CopyTwoTone,
@@ -95,8 +95,7 @@ export default function Actions({
             )}
           </CheckPermission>
         ),
-      }))}
-    >
+      }))}>
       <Space>
         <CTButton icon={<DownOutlined />}></CTButton>
       </Space>
