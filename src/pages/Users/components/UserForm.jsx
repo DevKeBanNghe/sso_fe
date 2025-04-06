@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'common/utils/toast.util';
 import { genUUID } from 'common/utils/string.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createUser, getUserDetail, updateUser } from '../service';
+import { createUser, getUserDetail, importUrl, updateUser } from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
@@ -35,8 +35,6 @@ function UserFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
       : mutationCreateUsers.mutate(payload);
   };
 
-  const handleUsersImport = () => {};
-
   const queryClient = useQueryClient();
   const handleSubmitSuccess = ({ errors }) => {
     if (errors) return toast.error(errors);
@@ -55,10 +53,20 @@ function UserFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
     mutationFn: updateUser,
     onSuccess: handleSubmitSuccess,
   });
+
+  const handleImport = ({ file }) => {
+    if (file.status === 'done') {
+      toast.success(`${file.name} file uploaded successfully`);
+      queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
+    } else if (file.status === 'error') {
+      toast.error(`${file.name} file upload failed.`);
+    }
+  };
+
   const formItems = [
     {
       render: () => {
-        return <CTUploadButton content='Import' />;
+        return <CTUploadButton content='Import' apiUrl={importUrl} onChange={handleImport} />;
       },
     },
     {

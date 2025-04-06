@@ -1,18 +1,19 @@
 import CTTable from 'components/shared/CTTable';
 import useQueryKeys from 'hooks/useQueryKeys';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useCurrentPage from 'hooks/useCurrentPage';
-import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
 import { Controller, useForm } from 'react-hook-form';
 import { Checkbox } from 'antd';
 import { getRoleOptions } from 'pages/Roles/service';
 import { getPermissionList } from 'pages/Permissions/service';
-import { getRolePermissionList, updateRolePermission } from '../service';
+import { exportRolePermissionList, getRolePermissionList, importUrl, updateRolePermission } from '../service';
 import { isArray, isEmpty } from 'lodash';
 import { toast } from 'common/utils/toast.util';
 import { useEffect, useMemo, useState } from 'react';
 import { SearchAddonBefore } from './SearchSelect';
 import { SEARCH_TYPES } from '../const';
+import CTUploadButton from 'components/shared/CTButton/CTUploadButton';
+import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
 function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
   const { keyList } = useQueryKeys();
   const { queryParams } = useCurrentPage();
@@ -24,16 +25,18 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
   const [searchPermissionValue, setSearchPermissionValue] = useState();
   const [searchRoleValue, setSearchRole] = useState();
 
+  const keyPermissionList = [`${keyList}-${queryParams.page}`, searchPermissionValue];
   const { data: queryGetPermissionListData = {}, isFetched: isFetchedPermissions } = useQuery({
-    queryKey: [`${keyList}-${queryParams.page}`, searchPermissionValue],
+    queryKey: keyPermissionList,
     queryFn: () => getPermissionList({ ...queryParams, search: searchPermissionValue }),
     staleTime: STALE_TIME_GET_LIST,
   });
   const { data } = queryGetPermissionListData;
   const { totalItems, itemPerPage, list, page } = data ?? {};
 
+  const keyRoleOptions = ['role_options', searchRoleValue];
   const { data: roleOptionsDataQuery = {}, isFetched: isFetchedRoles } = useQuery({
-    queryKey: ['role_options', searchRoleValue],
+    queryKey: keyRoleOptions,
     queryFn: () => getRoleOptions({ search: searchRoleValue }),
   });
 
@@ -44,8 +47,9 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
     return searchTypeCurrent.value === 'permission';
   }, [searchType]);
 
+  const keyPermissionRoleList = ['permission_role_list', searchPermissionValue, searchRoleValue];
   const { data: rolePermissionDataQuery = {} } = useQuery({
-    queryKey: ['permission_role_list', searchPermissionValue, searchRoleValue],
+    queryKey: keyPermissionRoleList,
     queryFn: async () => {
       const permission_id_role_id_list = list.reduce((acc, { permission_id }) => {
         const data = dataRoleOptions.reduce((accRole, { role_id }) => [...accRole, { permission_id, role_id }], []);
@@ -136,7 +140,27 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
     }),
   ];
 
+  const queryClient = useQueryClient();
+  const handleImport = async ({ file }) => {
+    if (file.status === 'done') {
+      toast.success(`${file.name} file uploaded successfully`);
+      await queryClient.invalidateQueries({ queryKey: keyPermissionList });
+      await queryClient.invalidateQueries({ queryKey: keyRoleOptions });
+      await queryClient.invalidateQueries({ queryKey: keyPermissionRoleList });
+    } else if (file.status === 'error') {
+      toast.error(`${file.name} file upload failed.`);
+    }
+  };
   const globalActions = [
+    {
+      content: 'Export',
+      onClick: () => exportRolePermissionList(),
+    },
+    {
+      render: () => (
+        <CTUploadButton key={'role_permission_import'} content='Import' apiUrl={importUrl} onChange={handleImport} />
+      ),
+    },
     {
       content: 'Update',
       onClick: async () => {

@@ -17,9 +17,10 @@ const HomePage = () => {
   const { currentRoute, queryParamsString } = useCurrentPage({ isPaging: false });
 
   useEffect(() => {
+    if (user.loading) return;
     if (!isAllowed) {
       if (!user.user_name) return navigate(`/sign-in${queryParamsString}`);
-      navigate('error/403', {
+      return navigate('error', {
         state: {
           status_code: 403,
         },

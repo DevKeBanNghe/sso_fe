@@ -1,5 +1,5 @@
 import CTTable from 'components/shared/CTTable';
-import { deleteWebpages, getWebpageList, toggleWebpagesActive } from '../service';
+import { deleteWebpages, exportWebpages, getWebpageList, toggleWebpagesActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +52,8 @@ function WebpageTableRef(props, ref) {
 
   const handleDeleteAll = async (ids = []) => mutationDeleteWebpages.mutate({ ids });
 
+  const handleExportExcel = async (ids = []) => exportWebpages({ ids });
+
   return (
     <CTTable
       rowKey={'webpage_id'}
@@ -63,6 +65,7 @@ function WebpageTableRef(props, ref) {
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
       onGlobalToggleActive={handleToggleWebpagesActive}
+      onGlobalExport={handleExportExcel}
     />
   );
 }

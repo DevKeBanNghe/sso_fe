@@ -44,7 +44,8 @@ export default function ForgotPasswordForm() {
           type='primary'
           htmlType='submit'
           className='login-form-button'
-          style={{ width: '100%' }}>
+          style={{ width: '100%' }}
+        >
           Send
         </Button>
       ),

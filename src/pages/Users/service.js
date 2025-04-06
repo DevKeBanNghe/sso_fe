@@ -11,6 +11,7 @@ const getUserOptions = (params = {}) => api.get(`${ROOT_ROUTE}/options`, { param
 const getUserInfo = () => api.get(`${ROOT_ROUTE}/info`);
 const toggleUsersActive = (data = {}) => api.put(`${ROOT_ROUTE}/activate-status`, data);
 const exportUsers = (params = {}) => exportExcel({ url: `${ROOT_ROUTE}/export`, fileName: 'users', params });
+const importUrl = `${ROOT_ROUTE}/import`;
 
 export {
   createUser,
@@ -22,4 +23,5 @@ export {
   getUserInfo,
   toggleUsersActive,
   exportUsers,
+  importUrl,
 };

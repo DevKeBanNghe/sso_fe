@@ -5,10 +5,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'common/utils/toast.util';
 import { transferToOptionSelect } from 'common/utils/select.util';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createWebpage, getWebpageDetail, updateWebpage } from '../service';
+import { createWebpage, getWebpageDetail, importUrl, updateWebpage } from '../service';
 import { DEFAULT_PAGINATION, SELECT_LIMIT_OPTIONS } from 'common/consts/constants.const';
-import CTButton from 'components/shared/CTButton';
-import { LockOutlined, ImportOutlined, PlusCircleFilled } from '@ant-design/icons';
+import { LockOutlined, PlusCircleFilled } from '@ant-design/icons';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
@@ -19,6 +18,7 @@ import RoleForm from 'pages/Roles/components/RoleForm';
 import useGetDetail from 'hooks/useGetDetail';
 import { genUUID } from 'common/utils/string.util';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
+import CTUploadButton from 'components/shared/CTButton/CTUploadButton';
 
 function WebpageFormRef({ queryKeyFetchListTable }, ref) {
   const { id: currentWebpageId, isEdit, setQueryParams, isCopy, isView } = useCurrentPage();
@@ -71,14 +71,19 @@ function WebpageFormRef({ queryKeyFetchListTable }, ref) {
     return transferToOptionSelect({ data, value: 'role_id', label: 'role_name' });
   };
 
+  const handleImport = ({ file }) => {
+    if (file.status === 'done') {
+      toast.success(`${file.name} file uploaded successfully`);
+      queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
+    } else if (file.status === 'error') {
+      toast.error(`${file.name} file upload failed.`);
+    }
+  };
+
   const formItems = [
     {
       render: () => {
-        return (
-          <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handleWebpagesImport}>
-            Import
-          </CTButton>
-        );
+        return <CTUploadButton content='Import' apiUrl={importUrl} onChange={handleImport} />;
       },
     },
     {

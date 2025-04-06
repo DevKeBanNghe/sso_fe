@@ -1,5 +1,5 @@
 import CTTable from 'components/shared/CTTable';
-import { deletePermissions, getPermissionList, togglePermissionsActive } from '../service';
+import { deletePermissions, exportPermissions, getPermissionList, togglePermissionsActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
@@ -51,6 +51,8 @@ function PermissionTableRef(props, ref) {
 
   const handleDeleteAll = async (ids = []) => mutationDeletePermissions.mutate({ ids });
 
+  const handleExportExcel = async (ids = []) => exportPermissions({ ids });
+
   return (
     <CTTable
       rowKey={'permission_id'}
@@ -61,6 +63,7 @@ function PermissionTableRef(props, ref) {
       fieldsColummnExclude={['children']}
       onGlobalDelete={handleDeleteAll}
       onGlobalToggleActive={handleTogglePermissionsActive}
+      onGlobalExport={handleExportExcel}
     />
   );
 }

@@ -9,11 +9,11 @@ import {
   getHttpMethodOptions,
   getPermissionActionsOptions,
   getPermissionDetail,
+  importUrl,
   updatePermission,
 } from '../service';
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
-import CTButton from 'components/shared/CTButton';
-import { LockOutlined, ImportOutlined } from '@ant-design/icons';
+import { LockOutlined } from '@ant-design/icons';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
 import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
@@ -23,6 +23,7 @@ import useGetDetail from 'hooks/useGetDetail';
 import { useForm } from 'react-hook-form';
 import { REQUIRED_FIELD_TEMPLATE } from 'common/templates/rules.template';
 import CTCheckboxTree from 'components/shared/CTCheckbox/CheckboxTree';
+import CTUploadButton from 'components/shared/CTButton/CTUploadButton';
 
 function PermissionFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
   const { keyList } = useQueryKeys();
@@ -83,14 +84,19 @@ function PermissionFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
     },
   });
 
+  const handleImport = ({ file }) => {
+    if (file.status === 'done') {
+      toast.success(`${file.name} file uploaded successfully`);
+      queryClient.invalidateQueries({ queryKey: queryKeyFetchListTable });
+    } else if (file.status === 'error') {
+      toast.error(`${file.name} file upload failed.`);
+    }
+  };
+
   const formItems = [
     {
       render: () => {
-        return (
-          <CTButton style={{ float: 'right' }} icon={<ImportOutlined />} onClick={handlePermissionsImport}>
-            Import
-          </CTButton>
-        );
+        return <CTUploadButton content='Import' apiUrl={importUrl} onChange={handleImport} />;
       },
     },
     {

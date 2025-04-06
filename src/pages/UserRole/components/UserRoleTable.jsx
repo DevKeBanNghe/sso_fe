@@ -1,18 +1,20 @@
 import useQueryKeys from 'hooks/useQueryKeys';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useCurrentPage from 'hooks/useCurrentPage';
 import { STALE_TIME_GET_LIST } from 'common/consts/react-query.const';
 import { Controller, useForm } from 'react-hook-form';
 import { Checkbox } from 'antd';
 import { getRoleOptions } from 'pages/Roles/service';
 import { getUserList } from 'pages/Users/service';
-import { getUserRoleList, updateUserRole } from '../service';
+import { exportUserRoleList, getUserRoleList, importUrl, updateUserRole } from '../service';
 import { isArray, isEmpty } from 'lodash';
 import { toast } from 'common/utils/toast.util';
 import { useEffect, useMemo, useState } from 'react';
 import CTTable from 'components/shared/CTTable';
 import { SearchAddonBefore } from './SearchSelect';
 import { SEARCH_TYPES } from '../const';
+import CTUploadButton from 'components/shared/CTButton/CTUploadButton';
+
 function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
   const { keyList } = useQueryKeys();
   const { queryParams } = useCurrentPage();
@@ -24,16 +26,18 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
   const [searchUserValue, setSearchUserValue] = useState();
   const [searchRoleValue, setSearchRole] = useState();
 
+  const keyUserList = [`${keyList}-${queryParams.page}`, searchUserValue];
   const { data: queryGetUserListData = {}, isFetched: isFetchedUsers } = useQuery({
-    queryKey: [`${keyList}-${queryParams.page}`, searchUserValue],
+    queryKey: keyUserList,
     queryFn: () => getUserList({ ...queryParams, search: searchUserValue }),
     staleTime: STALE_TIME_GET_LIST,
   });
   const { data } = queryGetUserListData;
   const { totalItems, itemPerPage, list = [], page } = data ?? {};
 
+  const keyRoleOptions = ['role_options', searchRoleValue];
   const { data: roleOptionsDataQuery = {}, isFetched: isFetchedRoles } = useQuery({
-    queryKey: ['role_options', searchRoleValue],
+    queryKey: keyRoleOptions,
     queryFn: () => getRoleOptions({ search: searchRoleValue }),
   });
 
@@ -44,8 +48,9 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
     return searchTypeCurrent.value === 'user';
   }, [searchType]);
 
+  const keyUserRoleList = ['user_role_list', searchUserValue, searchRoleValue];
   const { data: userRoleDataQuery = {} } = useQuery({
-    queryKey: ['user_role_list', searchUserValue, searchRoleValue],
+    queryKey: keyUserRoleList,
     queryFn: async () => {
       const user_id_role_id_list = list.reduce((acc, { user_id }) => {
         const data = dataRoleOptions.reduce((accRole, { role_id }) => [...accRole, { user_id, role_id }], []);
@@ -136,7 +141,28 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
     }),
   ];
 
+  const queryClient = useQueryClient();
+  const handleImport = async ({ file }) => {
+    if (file.status === 'done') {
+      toast.success(`${file.name} file uploaded successfully`);
+      await queryClient.invalidateQueries({ queryKey: keyUserList });
+      await queryClient.invalidateQueries({ queryKey: keyRoleOptions });
+      await queryClient.invalidateQueries({ queryKey: keyUserRoleList });
+    } else if (file.status === 'error') {
+      toast.error(`${file.name} file upload failed.`);
+    }
+  };
+
   const globalActions = [
+    {
+      content: 'Export',
+      onClick: () => exportUserRoleList(),
+    },
+    {
+      render: () => (
+        <CTUploadButton key={'role_permission_import'} content='Import' apiUrl={importUrl} onChange={handleImport} />
+      ),
+    },
     {
       content: 'Update',
       onClick: async () => {

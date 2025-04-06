@@ -1,5 +1,5 @@
 import CTTable from 'components/shared/CTTable';
-import { deleteRoles, getRoleList, toggleRolesActive } from '../service';
+import { deleteRoles, exportRoles, getRoleList, toggleRolesActive } from '../service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'common/utils/toast.util';
 import { useNavigate } from 'react-router-dom';
@@ -51,6 +51,8 @@ function RoleTableRef(props, ref) {
 
   const handleDeleteAll = async (ids = []) => mutationDeleteRoles.mutate({ ids });
 
+  const handleExportExcel = async (ids = []) => exportRoles({ ids });
+
   return (
     <CTTable
       rowKey={'role_id'}
@@ -60,6 +62,7 @@ function RoleTableRef(props, ref) {
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
       onGlobalToggleActive={handleToggleRolesActive}
+      onGlobalExport={handleExportExcel}
       fieldsColummnExclude={['children']}
       permission_keys={[PERMISSION_KEYS.VIEW_ROLE_PERMISSION]}
       actions={[

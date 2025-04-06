@@ -99,11 +99,15 @@ function GlobalActions({
       ) : (
         <></>
       )}
-      {actions.map(({ content, ...props }, index) => (
-        <CTButton key={`global_actions_${index}`} type='primary' {...props}>
-          {content}
-        </CTButton>
-      ))}
+      {actions.map(({ content, render, ...props }, index) =>
+        isFunction(render) ? (
+          render()
+        ) : (
+          <CTButton key={`global_actions_${index}`} type='primary' {...props}>
+            {content}
+          </CTButton>
+        ),
+      )}
     </Flex>
   );
 }

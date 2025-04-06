@@ -1,7 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { getUserInfo } from './user.action';
+import { mappingValueReducer } from 'common/utils/redux-reducer.util';
 
-const initialState = {};
+const initialState = {
+  loading: false,
+};
 
 export const userSlice = createSlice({
   name: 'user',
@@ -11,16 +14,16 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getUserInfo.pending, (state) => {})
-      .addCase(getUserInfo.fulfilled, (state, { payload }) => {
-        const data = payload.data;
-        if (data) {
-          for (const field of Object.keys(data)) {
-            state[field] = data[field];
-          }
-        }
+      .addCase(getUserInfo.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(getUserInfo.rejected, (state) => {});
+      .addCase(getUserInfo.fulfilled, (state, { payload }) => {
+        state = mappingValueReducer({ state, payload });
+        state.loading = false;
+      })
+      .addCase(getUserInfo.rejected, (state) => {
+        state.loading = false;
+      });
   },
 });
 
