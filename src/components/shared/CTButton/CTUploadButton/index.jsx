@@ -18,7 +18,8 @@ const CTUploadButton = ({ content = 'Upload', apiUrl, onChange, ...props }) => {
       action={`${API_URL}${apiUrl}`}
       {...httpConfig}
       onChange={onChange}
-      {...props}>
+      {...props}
+    >
       <CTButton icon={<UploadOutlined />}>{content}</CTButton>
     </Upload>
   );

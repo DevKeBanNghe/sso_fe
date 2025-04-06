@@ -169,7 +169,8 @@ function WebpageFormRef({ queryKeyFetchListTable }, ref) {
         open={isOpenRoleModal}
         title='Role add'
         onCancel={() => setIsOpenRoleModal(false)}
-        onOk={() => roleFormRef.current.onSubmit()}>
+        onOk={() => roleFormRef.current.onSubmit()}
+      >
         <RoleForm ref={roleFormRef} isModal={true} />
       </CTModal>
     </>

@@ -131,7 +131,8 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}></Checkbox>
+                    }}
+                  ></Checkbox>
                 );
               }}
             />
