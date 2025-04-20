@@ -95,7 +95,8 @@ export default function Actions({
             )}
           </CheckPermission>
         ),
-      }))}>
+      }))}
+    >
       <Space>
         <CTButton icon={<DownOutlined />}></CTButton>
       </Space>

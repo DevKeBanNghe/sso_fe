@@ -98,7 +98,8 @@ export default function CTForm({
                   htmlType={htmlType ?? 'submit'}
                   className='login-form-button'
                   style={{ width: '100%', ...style }}
-                  {...action}>
+                  {...action}
+                >
                   {action.content ?? 'Submit'}
                 </CTButton>
               </Form.Item>
