@@ -49,7 +49,7 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
   }, [searchType]);
 
   const keyUserRoleList = ['user_role_list', searchUserValue, searchRoleValue];
-  const { data: userRoleDataQuery = {} } = useQuery({
+  const { data: userRoleDataQuery = {}, isLoading } = useQuery({
     queryKey: keyUserRoleList,
     queryFn: async () => {
       const user_id_role_id_list = list.reduce((acc, { user_id }) => {
@@ -131,8 +131,7 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}
-                  ></Checkbox>
+                    }}></Checkbox>
                 );
               }}
             />
@@ -207,6 +206,7 @@ function UserRoleTable({ setIsOpenRoleModal, setIsOpenUserModal }) {
   return (
     <CTTable
       rowKey={'user_id'}
+      loading={isLoading}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}

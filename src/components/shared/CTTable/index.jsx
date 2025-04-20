@@ -1,10 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Col, Row, Table, Tag } from 'antd';
 import SearchBar from 'layouts/Header/SearchBar';
 import Actions from './Actions';
 import GlobalActions from './GlobalActions';
 import useCurrentPage from 'hooks/useCurrentPage';
-import { isFunction, startCase } from 'lodash';
+import { isEmpty, isFunction, startCase, uniq } from 'lodash';
 import CheckPermission from '../CheckPermission';
 import { getPercentValue } from 'common/utils/number.util';
 import { getPlaceholderDefault } from 'common/utils/component.util';
@@ -37,8 +37,8 @@ const CTTable = ({
 }) => {
   const defaultActionKey = 'action';
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [columnsShow, setColumnsShow] = useState(isShowActionDefault ? [defaultActionKey] : []);
-
+  const [tableColumns, setTableColumns] = useState(columns);
+  const [tableRows, setTableRows] = useState([]);
   const { setQueryParams } = useCurrentPage({ isPaging: false });
 
   const onSearchBar =
@@ -47,104 +47,132 @@ const CTTable = ({
       setQueryParams((prev) => ({ ...prev, search: value }));
     });
 
-  const table_rows = useMemo(() => rows.map((row) => ({ ...row, key: row[rowKey] })), [rowKey, rows]);
-
-  const table_columns = useMemo(() => {
-    if (table_rows.length === 0) return columns;
-
-    let mainColumns = columns;
-    if (!isOverideColumns) {
-      const fieldsColumnExcludeCustom = [...fieldsColummnExclude, rowKey, 'key'];
-      mainColumns = Object.keys(table_rows[0]).reduce((acc, fieldName) => {
-        const isShowColumn = !columnsInfo[fieldName] && !fieldsColumnExcludeCustom.includes(fieldName);
-        if (isShowColumn) {
-          const column = {
-            title: getPlaceholderDefault(fieldName),
-            dataIndex: fieldName,
-            key: fieldName,
-            ...(columns.find((item) => item.key === fieldName) ?? {}),
-          };
-          if (fieldName === 'is_active') {
-            column.render = (value, index) => {
-              const data = {
-                1: { color: 'blue', content: 'Active' },
-                0: { color: 'red', content: 'Inactive' },
-              };
-              const currentData = data[value];
-              return (
-                <Tag color={currentData.color} key={`is_active_${index}`}>
-                  {currentData.content}
-                </Tag>
-              );
-            };
-          }
-          acc.push(column);
-        }
-        return acc;
-      }, []);
+  useEffect(() => {
+    const isLoading = props.loading;
+    if (!isLoading) {
+      setTableRows(rows.map((row) => ({ ...row, key: row[rowKey] })));
     }
+  }, [rows]);
 
-    const { columnsInfoRender, columnsInfoPercentWidth } = Object.entries(columnsInfo).reduce(
-      (acc, [column, isShow]) => {
-        if (isShow) {
-          const width = '11%';
-          acc.columnsInfoRender.push({
-            title: startCase(column),
-            width,
-            align: 'center',
-            dataIndex: column,
-            key: column,
-          });
-          acc.columnsInfoPercentWidth += getPercentValue(width);
-        }
-        return acc;
+  const columnsInfoRender = useMemo(() => {
+    const data = Object.entries(columnsInfo).reduce((acc, [column, isShow]) => {
+      if (isShow) {
+        const width = '11%';
+        acc.push({
+          title: startCase(column),
+          width,
+          align: 'center',
+          dataIndex: column,
+          key: column,
+          hidden: true,
+        });
+      }
+      return acc;
+    }, []);
+    return data;
+  }, []);
+
+  const actionColumn = useMemo(() => {
+    if (!isShowActionDefault) return {};
+    return {
+      title: 'Action',
+      key: defaultActionKey,
+      fixed: 'right',
+      align: 'center',
+      width: '6%',
+      render: (record) => {
+        const row_id = record[rowKey];
+        return (
+          <Actions
+            key={row_id}
+            isShowActionDefault={isShowActionDefault}
+            actions={actions}
+            dataRecord={{ ...record, row_id }}
+            onGlobalDelete={onGlobalDelete}
+            onGlobalToggleActive={onGlobalToggleActive}
+          />
+        );
       },
-      { columnsInfoRender: [], columnsInfoPercentWidth: 0 },
-    );
+    };
+  }, [isShowActionDefault]);
 
+  const defaultColumns = useMemo(() => {
+    if (isOverideColumns) return columns;
+    const fieldsColumnExcludeCustom = [...fieldsColummnExclude, rowKey, 'key'];
+    const data = Object.keys(tableRows[0] ?? {}).reduce((acc, fieldName) => {
+      const isShowColumn = !columnsInfo[fieldName] && !fieldsColumnExcludeCustom.includes(fieldName);
+      if (isShowColumn) {
+        const column = {
+          title: getPlaceholderDefault(fieldName),
+          dataIndex: fieldName,
+          key: fieldName,
+          ...(columns.find((item) => item.key === fieldName) ?? {}),
+        };
+        if (fieldName === 'is_active') {
+          column.render = (value, index) => {
+            const data = {
+              1: { color: 'blue', content: 'Active' },
+              0: { color: 'red', content: 'Inactive' },
+            };
+            const currentData = data[value];
+            return (
+              <Tag color={currentData.color} key={`is_active_${index}`}>
+                {currentData.content}
+              </Tag>
+            );
+          };
+        }
+        acc.push(column);
+      }
+      return acc;
+    }, []);
+    const otherColumns = columns.filter((column) => !data.find((item) => item.key === column.key));
+    return [...data, ...otherColumns];
+  }, [tableRows]);
+
+  const [columnsShow, setColumnsShow] = useState([]);
+  useEffect(() => {
+    const data = new Set([defaultActionKey]);
+    tableColumns.forEach((column) => {
+      if (column.isViewDefault) data.add(column.key);
+    });
+    Object.keys(tableRows[0] ?? {}).forEach((key) => {
+      if (!columnsInfo[key]) data.add(key);
+    });
+    setColumnsShow((prev) => uniq([...prev, ...Array.from(data)]));
+  }, [tableRows]);
+
+  useEffect(() => {
+    const columnsInfoPercentWidth = columnsInfoRender.reduce((acc, item) => acc + getPercentValue(item.width), 0);
     let percentWidthRemain = 100 - columnsInfoPercentWidth;
-    let columnAction;
-    if (isShowActionDefault) {
-      columnAction = {
-        title: 'Action',
-        key: defaultActionKey,
-        fixed: 'right',
-        align: 'center',
-        width: '8%',
-        render: (record) => {
-          const row_id = record[rowKey];
-          return (
-            <Actions
-              key={row_id}
-              isShowActionDefault={isShowActionDefault}
-              actions={actions}
-              dataRecord={{ ...record, row_id }}
-              onGlobalDelete={onGlobalDelete}
-              onGlobalToggleActive={onGlobalToggleActive}
-            />
-          );
-        },
-      };
-      percentWidthRemain -= getPercentValue(columnAction.width);
+    const isEmptyActionColumn = isEmpty(actionColumn);
+    if (!isEmptyActionColumn) {
+      percentWidthRemain -= getPercentValue(actionColumn.width);
     }
-
-    mainColumns = mainColumns.map((item) => ({
+    const customColumns = defaultColumns.map((item) => ({
       ...item,
-      width: item.width ?? percentWidthRemain / mainColumns.length + '%',
+      width: item.width ?? `${percentWidthRemain / defaultColumns.length}%`,
     }));
-    const columnsValue = [...mainColumns, ...columnsInfoRender];
-    const data = columnAction ? [...columnsValue, columnAction] : columnsValue;
-    return data.map((item) => ({
-      ...item,
-      hidden: isToggleColumnsView ? !columnsShow.includes(item.key) : false,
-    }));
-  }, [actions, columns, isShowActionDefault, table_rows]);
+    const columnsValue = [...customColumns, ...columnsInfoRender];
+    const data = isEmptyActionColumn ? columnsValue : [...columnsValue, actionColumn];
+    setTableColumns(data.map((item) => ({ ...item, hidden: !columnsShow.includes(item.key) })));
+  }, [columnsInfoRender, actionColumn, defaultColumns, columnsShow]);
 
   const selectedRowsRef = useRef(new Map());
   const handleSelectedRows = (selectedRowKeys, rowsSelected) => {
     selectedRowKeys = [...selectedRowsRef.current.values()];
     setSelectedRowKeys(selectedRowKeys);
     handleSelected(selectedRowKeys, rowsSelected);
+  };
+
+  const handleToggle = (columnsShow) => {
+    setColumnsShow(columnsShow);
+    setTableColumns((prev) =>
+      prev.map((item) => ({
+        ...item,
+        hidden: !columnsShow.includes(item.key),
+      })),
+    );
   };
 
   return (
@@ -167,21 +195,15 @@ const CTTable = ({
         </Row>
 
         {isToggleColumnsView ? (
-          <ToggleColumnsView
-            isShowActionDefault={isShowActionDefault}
-            columnsInfo={columnsInfo}
-            table_columns={table_columns}
-            table_rows={table_rows}
-            columnsShow={columnsShow}
-            setColumnsShow={setColumnsShow}
-          />
+          <ToggleColumnsView list={tableColumns} value={columnsShow} onChange={handleToggle} />
         ) : (
           <></>
         )}
 
         <Table
-          columns={table_columns}
-          dataSource={table_rows}
+          key={'table_key'}
+          columns={tableColumns}
+          dataSource={tableRows}
           scroll={{
             x: 1000,
           }}

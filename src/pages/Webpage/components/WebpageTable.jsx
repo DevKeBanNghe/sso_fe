@@ -16,6 +16,7 @@ function WebpageTableRef(props, ref) {
   const {
     data: { totalItems, itemPerPage, list, page },
     queryKey: queryKeyGetWebpageList,
+    isLoading,
   } = useGetList({ func: getWebpageList });
 
   useImperativeHandle(ref, () => ({
@@ -57,11 +58,11 @@ function WebpageTableRef(props, ref) {
   return (
     <CTTable
       rowKey={'webpage_id'}
+      loading={isLoading}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}
       columns={columns}
-      onChange={({ current: page }) => setQueryParams((pre) => ({ ...pre, page }))}
       currentPage={page}
       onGlobalDelete={handleDeleteAll}
       onGlobalToggleActive={handleToggleWebpagesActive}

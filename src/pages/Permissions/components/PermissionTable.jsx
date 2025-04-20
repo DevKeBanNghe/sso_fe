@@ -15,6 +15,7 @@ function PermissionTableRef(props, ref) {
   const {
     data: { totalItems, itemPerPage, list, page },
     queryKey: queryKeyGetPermissionList,
+    isLoading,
   } = useGetList({ func: getPermissionList });
 
   useImperativeHandle(ref, () => ({
@@ -56,6 +57,7 @@ function PermissionTableRef(props, ref) {
   return (
     <CTTable
       rowKey={'permission_id'}
+      loading={isLoading}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}

@@ -48,7 +48,7 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
   }, [searchType]);
 
   const keyPermissionRoleList = ['permission_role_list', searchPermissionValue, searchRoleValue];
-  const { data: rolePermissionDataQuery = {} } = useQuery({
+  const { data: rolePermissionDataQuery = {}, isLoading } = useQuery({
     queryKey: keyPermissionRoleList,
     queryFn: async () => {
       const permission_id_role_id_list = list.reduce((acc, { permission_id }) => {
@@ -130,8 +130,7 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
                         }
                       }
                       handleChecked({ fieldName });
-                    }}
-                  ></Checkbox>
+                    }}></Checkbox>
                 );
               }}
             />
@@ -205,6 +204,7 @@ function RolePermissionTable({ setIsOpenRoleModal, setIsOpenPermissionModal }) {
   return (
     <CTTable
       rowKey={'permission_id'}
+      loading={isLoading}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}

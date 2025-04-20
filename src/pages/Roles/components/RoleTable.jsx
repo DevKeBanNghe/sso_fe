@@ -15,6 +15,7 @@ function RoleTableRef(props, ref) {
   const {
     data: { totalItems, itemPerPage, list, page },
     queryKey: queryKeyGetRoleList,
+    isLoading,
   } = useGetList({ func: getRoleList });
 
   useImperativeHandle(ref, () => ({
@@ -56,6 +57,7 @@ function RoleTableRef(props, ref) {
   return (
     <CTTable
       rowKey={'role_id'}
+      loading={isLoading}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}

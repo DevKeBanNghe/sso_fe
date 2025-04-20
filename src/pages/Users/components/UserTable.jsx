@@ -16,6 +16,7 @@ function UserTableRef(props, ref) {
   const {
     data: { totalItems, itemPerPage, list, page },
     queryKey: queryKeyGetUserList,
+    isLoading,
   } = useGetList({ func: getUserList });
 
   useImperativeHandle(ref, () => ({
@@ -57,6 +58,7 @@ function UserTableRef(props, ref) {
   return (
     <CTTable
       rowKey={'user_id'}
+      loading={isLoading}
       totalItems={totalItems}
       itemPerPage={itemPerPage}
       rows={list}

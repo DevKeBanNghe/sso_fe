@@ -33,8 +33,7 @@ function GlobalActions({
           onConfirm={() => {
             onGlobalDelete(selectedRowKeys);
             handleClearAllChecked();
-          }}
-        >
+          }}>
           <Button style={{ background: '#ffccc7' }}>Delete</Button>
         </CTPopconfirm>
       ),
