@@ -7,6 +7,7 @@
     "start": "vite",
     "build": "vite build --mode production",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --fix",
+    "i-prod": "npm i --ignore-scripts",
     "preview": "vite preview",
     "test": "echo testing...",
     "format": "prettier --write .",

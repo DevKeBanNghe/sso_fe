@@ -1,0 +1,4 @@
+{
+  "installCommand": "npm run i-prod",
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+}
