@@ -1,6 +1,6 @@
 import { Flex } from 'antd';
 import CTIcon from 'components/shared/CTIcon';
-import { GoogleCircleFilled, FacebookFilled, GithubFilled } from '@ant-design/icons';
+import { GoogleCircleFilled, GithubFilled } from '@ant-design/icons';
 import { redirectTo } from 'common/utils/common.util';
 import useCurrentPage from 'hooks/useCurrentPage';
 const API_URL = import.meta.env.VITE_API_URL;
@@ -16,13 +16,13 @@ export default function SocialsSignIn() {
         redirectTo(`${API_URL}/auth/google?webpage_key=${webpage_key}`);
       },
     },
-    {
-      icon: FacebookFilled,
-      color: '#0866ff',
-      onClick: () => {
-        redirectTo(`${API_URL}/auth/facebook?webpage_key=${webpage_key}`);
-      },
-    },
+    // {
+    //   icon: FacebookFilled,
+    //   color: '#0866ff',
+    //   onClick: () => {
+    //     redirectTo(`${API_URL}/auth/facebook?webpage_key=${webpage_key}`);
+    //   },
+    // },
     {
       icon: GithubFilled,
       color: '#1f2328',
