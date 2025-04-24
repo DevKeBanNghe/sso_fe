@@ -71,9 +71,10 @@ export default function SignInForm() {
   ];
   const mutationSignIn = useMutation({
     mutationFn: signIn,
-    onSuccess: ({ data, errors }) => {
+    onSuccess: ({ data = {}, errors }) => {
       if (errors) return toast.error(errors);
-      return redirectTo(data.webpage_url ?? '/');
+      const { webpage_url, user_id } = data;
+      return redirectTo(webpage_url ? `${webpage_url}?user_id=${user_id}` : '/');
     },
   });
 
