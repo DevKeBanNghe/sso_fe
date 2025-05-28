@@ -15,7 +15,6 @@ import {
 import { DEFAULT_PAGINATION } from 'common/consts/constants.const';
 import { LockOutlined } from '@ant-design/icons';
 import CTDebounceSelect from 'components/shared/CTDebounceSelect';
-import useQueryKeys from 'hooks/useQueryKeys';
 import CTInput from 'components/shared/CTInput';
 import useCurrentPage from 'hooks/useCurrentPage';
 import usePermissionOptions from '../hooks/usePermissionOptions';
@@ -26,7 +25,6 @@ import CTCheckboxTree from 'components/shared/CTCheckbox/CheckboxTree';
 import CTUploadButton from 'components/shared/CTButton/CTUploadButton';
 
 function PermissionFormRef({ isModal = false, queryKeyFetchListTable }, ref) {
-  const { keyList } = useQueryKeys();
   const { id: currentPermissionId, isEdit, isCopy, setQueryParams } = useCurrentPage();
   const [checkedKeysDefault, setCheckedKeysDefault] = useState([]);
   const { control, handleSubmit, reset, setFocus, setValue } = useForm();
