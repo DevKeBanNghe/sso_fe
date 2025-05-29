@@ -46,7 +46,8 @@ const refreshToken = async () => {
     refreshTokenState.promise = refreshApi.get(`/auth/refresh-token`);
     const { errors, data } = await refreshTokenState.promise;
     if (errors) throw new Error(errors.toString());
-    store.dispatch(getUserInfo()).then(() => (window.location.href = APP_PREFIX));
+    await store.dispatch(getUserInfo());
+    window.location.href = APP_PREFIX;
     return data;
   } catch (error) {
     if (refreshTokenState.retryCount < MAX_RETRIES) {
