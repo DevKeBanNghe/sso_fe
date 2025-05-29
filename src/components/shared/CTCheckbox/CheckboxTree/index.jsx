@@ -6,8 +6,6 @@ const CTCheckboxTree = ({ data = [], onCheck = (value) => {}, checkedKeysDefault
   const [checkedKeys, setCheckedKeys] = useState(checkedKeysDefault);
   const [autoExpandParent, setAutoExpandParent] = useState(true);
   const onExpand = (expandedKeysValue) => {
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
     setExpandedKeys(expandedKeysValue);
     setAutoExpandParent(false);
   };

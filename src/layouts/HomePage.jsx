@@ -17,17 +17,25 @@ const HomePage = () => {
   const { currentRoute, queryParamsString } = useCurrentPage({ isPaging: false });
 
   useEffect(() => {
-    if (user.loading) return;
+    if (user.loading) return () => {};
     if (!isAllowed) {
-      if (!user.user_name) return navigate(`/sign-in${queryParamsString}`);
-      return navigate('error', {
-        state: {
-          status_code: 403,
-        },
-      });
+      if (!user.user_name)
+        return () => {
+          navigate(`/sign-in${queryParamsString}`);
+        };
+      return () => {
+        navigate('error', {
+          state: {
+            status_code: 403,
+          },
+        });
+      };
     }
 
-    if (currentRoute === '/') return navigate(`/users${queryParamsString}`);
+    if (currentRoute === '/')
+      return () => {
+        navigate(`/users${queryParamsString}`);
+      };
   }, [user, isAllowed, currentRoute]);
 
   return (
@@ -41,8 +49,7 @@ const HomePage = () => {
               style={{
                 padding: 12,
                 minHeight: '100vh',
-              }}
-            >
+              }}>
               {outlet}
             </div>
           </Content>

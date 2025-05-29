@@ -33,6 +33,7 @@ const CTTable = ({
   isOverideColumns = false,
   fieldsColummnExclude = [],
   isToggleColumnsView = true,
+  loading: isLoading = true,
   ...props
 }) => {
   const defaultActionKey = 'action';
@@ -48,11 +49,10 @@ const CTTable = ({
     });
 
   useEffect(() => {
-    const isLoading = props.loading;
     if (!isLoading) {
       setTableRows(rows.map((row) => ({ ...row, key: row[rowKey] })));
     }
-  }, [rows]);
+  }, [rows, isLoading]);
 
   const columnsInfoRender = useMemo(() => {
     const data = Object.entries(columnsInfo).reduce((acc, [column, isShow]) => {
@@ -155,7 +155,9 @@ const CTTable = ({
     }));
     const columnsValue = [...customColumns, ...columnsInfoRender];
     const data = isEmptyActionColumn ? columnsValue : [...columnsValue, actionColumn];
-    setTableColumns(data.map((item) => ({ ...item, hidden: !columnsShow.includes(item.key) })));
+    setTableColumns(
+      data.map((item) => ({ ...item, hidden: isOverideColumns ? false : !columnsShow.includes(item.key) })),
+    );
   }, [columnsInfoRender, actionColumn, defaultColumns, columnsShow]);
 
   const selectedRowsRef = useRef(new Map());

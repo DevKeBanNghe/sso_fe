@@ -14,7 +14,6 @@ const DebounceSelect = ({ fetchOptions = async () => {}, debounceTimeout = 800, 
       setFetching(true);
       fetchOptions(value).then((newOptions) => {
         if (fetchId !== fetchRef.current) {
-          // for fetch callback order
           return;
         }
         setOptions(newOptions);
